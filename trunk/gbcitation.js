@@ -2,6 +2,7 @@
 // @name          Citation wikitext generator
 // @description   Generates {{citation}} wiki markup from Google Books links
 // @namespace     http://code.google.com/p/random-code/
+// @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
 // @include       http://books.google.com/*
 // ==/UserScript==
 //
@@ -29,37 +30,13 @@
   Changelog:
   2009-03-15 First version
   2009-03-15 Remove unneeded @requires
+  2009-03-15 Return to using wget
 */
 
 if(!this.gbcitation && window===window.top) {
   var gbcitation = function () {
 
-    //Perform func on the document at url
-    function do_doc_iframe(url, func) {
-      if(url == document.location.href) { func(document); return; }
-      var iframe = document.createElement('iframe');
-      // iframe.width = iframe.height = 0;
-      // iframe.style.visibility = 'hidden';
-      // iframe.style.opacity = '0'; //Redundant?
-      iframe.style.display = 'none';
-      iframe.src = url;
-      iframe.addEventListener('load', function(){
-          //gm_log('Loaded iframe.');
-          func(iframe.contentDocument);
-          // iframe.src = '';
-          // iframe.contentWindow.close(); // may not be needed but may help.
-          // document.removeChild(iframe);
-        }, false);
-
-      /*If debugging
-      iframe.width = 400;
-      iframe.height = 100;
-      document.body.insertBefore(iframe, document.body.firstChild);
-      */
-      document.body.appendChild(iframe);
-    }
-
-    var do_doc = do_doc_iframe;
+    function do_doc(url, func) { wget(url, func, runGM=false, div=true); }
 
     String.prototype.startsWith = function(str) {
       return (this.indexOf(str) === 0);
@@ -72,7 +49,7 @@ if(!this.gbcitation && window===window.top) {
       var s = '';
       for(var i=0; i<n; ++i) {
         var p = pieces[i];
-        if(p.className=='bookinfo_section_line book_title_line') {
+        if(p.className==='bookinfo_section_line book_title_line') {
           s += ' | title='+p.innerHTML;
           continue;
         }
@@ -122,8 +99,7 @@ if(!this.gbcitation && window===window.top) {
         if(t.startsWith('Original from') || t.startsWith('Digitized')) {
           continue;
         }
-        var re = /(\d+) pages/i;
-        var pages = t.match(re);
+        var pages = t.match(/(\d+) pages/i);
         if(pages!==null) {
           if(pages.length<2) { alert('Too short match: '+pages[0]+' only.'); }
           //s += ' | pages='+pages[1];
