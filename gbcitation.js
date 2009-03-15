@@ -18,10 +18,11 @@
 
   Notes
   =====
-  It is essentially screen-scraping. Very likely it will not work.
+  It works somewhat, but doesn't handle multiple editors. For example.
+  Suggestions for improvement are very much welcome!
 
   Changelog:
-  2009-03-15 Start writing.
+  2009-03-15 First version
 */
 
 if(!this.gbcitation && window===window.top) {
