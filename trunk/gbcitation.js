@@ -16,9 +16,16 @@
   {{citation|...}} format, suitable for inclusion on Wikipedia:
   http://en.wikipedia.org/wiki/Template:Citation
 
+  For example, when at the URL:
+  http://books.google.com/books?id=_tnwmvHmVwMC&pg=PA5&dq=%22The+trouble+is%22
+  you can click "Show citation" to get
+  {{citation | title=Asymptotic Methods in Analysis | author=N. G. de Bruijn | edition=3, illustrated | year=1981 | publisher=Courier Dover Publications | isbn=9780486642215 | page=5 | url=http://books.google.com/books?id=_tnwmvHmVwMC&pg=PA5&dq=%22The+trouble+is%22}}
+  which is in the right format for Wikipedia, more or less.
+
   Notes
   =====
-  It works somewhat, but doesn't handle multiple editors. For example.
+  It works somewhat, but there are several things it doesn't handle, or
+  could handle better.
   Suggestions for improvement are very much welcome!
 
   Changelog:
