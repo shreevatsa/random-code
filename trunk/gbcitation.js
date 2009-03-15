@@ -2,7 +2,6 @@
 // @name          Citation wikitext generator
 // @description   Generates {{citation}} wiki markup from Google Books links
 // @namespace     http://code.google.com/p/random-code/
-// @require       http://www.json.org/json2.js
 // @include       http://books.google.com/*
 // ==/UserScript==
 //
@@ -29,6 +28,7 @@
 
   Changelog:
   2009-03-15 First version
+  2009-03-15 Remove unneeded @requires
 */
 
 if(!this.gbcitation && window===window.top) {
