@@ -2,7 +2,6 @@
 // @name          Citation wikitext generator
 // @description   Generates {{citation}} wiki markup from Google Books links
 // @namespace     http://code.google.com/p/random-code/
-// @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
 // @require       http://www.json.org/json2.js
 // @include       http://books.google.com/*
 // ==/UserScript==
@@ -42,8 +41,7 @@ if(!this.gbcitation && window===window.top) {
       // iframe.width = iframe.height = 0;
       // iframe.style.visibility = 'hidden';
       // iframe.style.opacity = '0'; //Redundant?
-
-      //iframe.style.display = 'none';
+      iframe.style.display = 'none';
       iframe.src = url;
       iframe.addEventListener('load', function(){
           //gm_log('Loaded iframe.');
@@ -61,36 +59,11 @@ if(!this.gbcitation && window===window.top) {
       document.body.appendChild(iframe);
     }
 
-    function createFragment(s) {
-      var node = document.createElement('div');
-      //var range = document.createRange();
-      //range.setStartAfter(document.body);
-      //node.appendChild(range.createContextualFragment(s));
-      node.innerHTML = s;
-      return node;
-    }
-
-    function do_doc_xmlhttp(url, func) {
-      if(url == document.location.href) { func(document); return; }
-      gm_xmlhttpRequest({
-        method : 'GET',
-            url: url,
-            onload: function(res) {
-            var docfrag = createFragment(res.responseText);
-            func(docfrag);
-          }
-        });
-    }
+    var do_doc = do_doc_iframe;
 
     String.prototype.startsWith = function(str) {
       return (this.indexOf(str) === 0);
     };
-
-    //JSLint thinks function names starting with uppercase are constructors
-    //var gm_log=GM_log, gm_setValue=GM_setValue, gm_getValue=GM_getValue;
-    //var gm_registerMenuCommand=GM_registerMenuCommand, gm_xmlhttpRequest=GM_xmlhttpRequest;
-    //var do_doc = wget;
-    var do_doc = do_doc_iframe;
 
     function infoFromBook(doc) {
       var tdiv = doc.getElementsByClassName('bookinfo_sectionwrap')[0];
@@ -200,7 +173,6 @@ if(!this.gbcitation && window===window.top) {
     }
     add_link();
 
-//     gm_registerMenuCommand('Generate citation', function() { alert(citation()); });
-
+    // gm_registerMenuCommand('Generate citation', function() { alert(citation()); });
   }();
  }
