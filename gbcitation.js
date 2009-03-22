@@ -44,88 +44,87 @@ if(!this.gbcitation && window===window.top) {
     };
 
     function infoFromBook(doc) {
-      var tdiv = doc.getElementsByClassName('bookinfo_sectionwrap')[0];
-      var pieces = tdiv.childNodes;
-      var n = pieces.length;
       var s = '';
-      for(var i=0; i<n; ++i) {
-        var p = pieces[i];
-        if(p.className==='bookinfo_section_line book_title_line') {
-          s += ' | title='+p.innerHTML;
-          continue;
-        }
-        var t = p.innerHTML;
-        if(t.startsWith('By')) {
-          var authors = t.substr(3).split(',');
-          if(authors.length===1) {
-            s += ' | author='+authors[0];
-          } else {
+      var nauthors=1;
+      var tdivs = doc.getElementsByClassName('bookinfo_sectionwrap');
+      //Yes, there are pages with more than one: see /books?id=xh0YAAAAYAAJ
+      for(var ti=0;ti<tdivs.length;++ti) {
+        var tdiv = tdivs[ti];
+        var pieces = tdiv.childNodes;
+        var n = pieces.length;
+        for(var i=0; i<n; ++i) {
+          var p = pieces[i];
+          if(p.className==='bookinfo_section_line book_title_line') {
+            s += ' | title='+p.innerHTML;
+            continue;
+          }
+          var t = p.innerHTML;
+          if(t.startsWith('By')) {
+            var authors = t.substr(3).split(',');
             for(var aj=0; aj<authors.length; ++aj) {
-              s += ' | author'+(aj+1)+'='+authors[aj];
+              s += ' | author'+nauthors+'='+authors[aj];
+              ++nauthors;
             }
+            continue;
           }
-          continue;
-        }
-        if(t.startsWith('Compiled by')) {
-          s += ' | editor='+t.substr(12); //editor1=... etc. doesn't work
-          continue;
-        }
-        if(t.startsWith('edited by') || t.startsWith('Edited by')) {
-          s += ' |editor='+t.substr(10);
-          continue;
-        }
-        if(t.startsWith('Translated by')) {
-          var authors = t.substr(14).split(',');
-          if(authors.length===1) {
-            s += ' | author='+authors[0];
-          } else {
+          if(t.startsWith('Translated by')) {
+            var authors = t.substr(14).split(',');
             for(var aj=0; aj<authors.length; ++aj) {
-              s += ' | author'+(aj+1)+'='+authors[aj];
+              s += ' | author'+nauthors+'='+authors[aj] + " (transl.)";
+              ++nauthors;
             }
+            continue;
           }
-          continue;
-        }
-        if(t.startsWith('Edition')) {
-          s += ' | edition='+t.substr(9);
-          continue;
-        }
-        if(t.startsWith('Published by')) {
-          var year = t.match(/\d+$/);
-          if(year !== null) {
-            s += ' | year='+year[0];
-            s += ' | publisher='+t.substring(13,t.length-year[0].length-2); //2 is for ', '
-          } else {
-            s += ' | publisher='+t.substr(13);
+          if(t.startsWith('Compiled by')) {
+            s += ' | editor='+t.substr(12); //editor1=... etc. doesn't work
+            continue;
           }
-          continue;
-        }
-        if(t.startsWith('Published')) {
-          var year = t.match(/\d+$/);
-          if(year !== null) {
-            s += ' | year='+year[0];
+          if(t.startsWith('edited by') || t.startsWith('Edited by')) {
+            s += ' |editor='+t.substr(10);
+            continue;
           }
-          continue;
-        }
+          if(t.startsWith('Edition')) {
+            s += ' | edition='+t.substr(9);
+            continue;
+          }
+          if(t.startsWith('Published by')) {
+            var year = t.match(/\d+$/);
+            if(year !== null) {
+              s += ' | year='+year[0];
+              s += ' | publisher='+t.substring(13,t.length-year[0].length-2); //2 is for ', '
+            } else {
+              s += ' | publisher='+t.substr(13);
+            }
+            continue;
+          }
+          if(t.startsWith('Published')) {
+            var year = t.match(/\d+$/);
+            if(year !== null) {
+              s += ' | year='+year[0];
+            }
+            continue;
+          }
 
-        if(t.startsWith('ISBN')) {
-          var isbn = t.match(/\d+$/);
-          if(isbn===null || isbn.length<1) {
-            alert('No match for trailing ISBN in "'+t+'".');
-          } else {
-            s += ' | isbn='+isbn[0];
+          if(t.startsWith('ISBN')) {
+            var isbn = t.match(/\d+$/);
+            if(isbn===null || isbn.length<1) {
+              alert('No match for trailing ISBN in "'+t+'".');
+            } else {
+              s += ' | isbn='+isbn[0];
+            }
+            continue;
           }
-          continue;
+          if(t.startsWith('Original from') || t.startsWith('Digitized')) {
+            continue;
+          }
+          var pages = t.match(/(\d+) pages/i);
+          if(pages!==null) {
+            if(pages.length<2) { alert('Too short match: '+pages[0]+' only.'); }
+            //s += ' | pages='+pages[1];
+            continue;
+          }
+          alert('Don\'t know what to do with "'+t+'"');
         }
-        if(t.startsWith('Original from') || t.startsWith('Digitized')) {
-          continue;
-        }
-        var pages = t.match(/(\d+) pages/i);
-        if(pages!==null) {
-          if(pages.length<2) { alert('Too short match: '+pages[0]+' only.'); }
-          //s += ' | pages='+pages[1];
-          continue;
-        }
-        alert('Don\'t know what to do with "'+t+'"');
       }
       return s;
     }
