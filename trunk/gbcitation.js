@@ -31,6 +31,7 @@
   2009-03-15 First version
   2009-03-15 Remove unneeded @requires
   2009-03-15 Return to using wget
+  2009-03-22 Take care of 'Published 1885' etc.
 */
 
 if(!this.gbcitation && window===window.top) {
@@ -77,7 +78,7 @@ if(!this.gbcitation && window===window.top) {
           s += ' | edition='+t.substr(9);
           continue;
         }
-        if(t.startsWith('Published')) {
+        if(t.startsWith('Published by')) {
           var year = t.match(/\d+$/);
           if(year !== null) {
             s += ' | year='+year[0];
@@ -87,6 +88,14 @@ if(!this.gbcitation && window===window.top) {
           }
           continue;
         }
+        if(t.startsWith('Published')) {
+          var year = t.match(/\d+$/);
+          if(year !== null) {
+            s += ' | year='+year[0];
+          }
+          continue;
+        }
+
         if(t.startsWith('ISBN')) {
           var isbn = t.match(/\d+$/);
           if(isbn===null || isbn.length<1) {
