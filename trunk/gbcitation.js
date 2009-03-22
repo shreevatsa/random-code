@@ -77,7 +77,7 @@ if(!this.gbcitation && window===window.top) {
           s += ' | edition='+t.substr(9);
           continue;
         }
-        if(t.startsWith('Published by')) {
+        if(t.startsWith('Published')) {
           var year = t.match(/\d+$/);
           if(year !== null) {
             s += ' | year='+year[0];
