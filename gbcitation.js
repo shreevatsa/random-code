@@ -27,6 +27,10 @@
   could handle better.
   Suggestions for improvement are very much welcome!
 
+  KNOWN BUGS
+  ==========
+  Authors present in both "By" and "Translated by" are repeated.
+
   Changelog:
   2009-03-15 First version
   2009-03-15 Remove unneeded @requires
