@@ -32,6 +32,7 @@
   2009-03-15 Remove unneeded @requires
   2009-03-15 Return to using wget
   2009-03-22 Take care of 'Published 1885' etc.
+  2009-03-22 Handle translators and multiple info divs
 */
 
 if(!this.gbcitation && window===window.top) {
