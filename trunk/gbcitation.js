@@ -74,6 +74,17 @@ if(!this.gbcitation && window===window.top) {
           s += ' |editor='+t.substr(10);
           continue;
         }
+        if(t.startsWith('Translated by')) {
+          var authors = t.substr(14).split(',');
+          if(authors.length===1) {
+            s += ' | author='+authors[0];
+          } else {
+            for(var aj=0; aj<authors.length; ++aj) {
+              s += ' | author'+(aj+1)+'='+authors[aj];
+            }
+          }
+          continue;
+        }
         if(t.startsWith('Edition')) {
           s += ' | edition='+t.substr(9);
           continue;
