@@ -27,6 +27,11 @@
   could handle better.
   Suggestions for improvement are very much welcome!
 
+  KNOWN BUGS
+  ==========
+  When there are multiple editors, it just puts them all in one "editor=" field:
+  For some reason, Template:Citation doesn't support editor1, editor2... parameters
+
   Changelog:
   2009-03-15 First version
   2009-03-15 Remove unneeded @requires
