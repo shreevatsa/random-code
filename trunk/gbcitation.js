@@ -150,7 +150,7 @@ if(!this.gbcitation && window===window.top) {
     function showCitationFromPage() {
       var u = location.href;
       var book = u.split('&')[0];
-      alert('Getting info from '+book);
+      console.log('Getting info from '+book);
       do_doc(book, function(doc) {
           var info = infoFromBook(doc);
           showCitationFromInfo(info, u);
