@@ -18,7 +18,7 @@
   For example, when at the URL:
   http://books.google.com/books?id=_tnwmvHmVwMC&pg=PA5&dq=%22The+trouble+is%22
   you can click "Show citation" to get
-  {{citation | title=Asymptotic Methods in Analysis | author=N. G. de Bruijn | edition=3, illustrated | year=1981 | publisher=Courier Dover Publications | isbn=9780486642215 | page=5 | url=http://books.google.com/books?id=_tnwmvHmVwMC&pg=PA5&dq=%22The+trouble+is%22}}
+  {{citation | title=Asymptotic Methods in Analysis | author1=N. G. de Bruijn | edition=3, illustrated | year=1981 | publisher=Courier Dover Publications | isbn=9780486642215 | page=5 | url=http://books.google.com/books?id=_tnwmvHmVwMC&pg=PA5&dq=%22The+trouble+is%22}}
   which is in the right format for Wikipedia, more or less.
 
   Notes
