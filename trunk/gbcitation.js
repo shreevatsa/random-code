@@ -27,11 +27,6 @@
   could handle better.
   Suggestions for improvement are very much welcome!
 
-  KNOWN BUGS
-  ==========
-  When there are multiple editors, it just puts them all in one "editor=" field, since
-  for some reason, Template:Citation doesn't support editor1, editor2... as parameters
-
   Changelog:
   2009-03-15 First version
   2009-03-15 Remove unneeded @requires
@@ -40,6 +35,7 @@
   2009-03-22 Handle translators and multiple info divs
   2009-03-22 Put year at the beginning, making it easier to sort by
   2009-03-23 Change the annoying first alert() to console.log()
+  2009-03-23 Fix the multiple editors bug
 */
 
 if(!this.gbcitation && window===window.top) {
@@ -55,6 +51,7 @@ if(!this.gbcitation && window===window.top) {
     function infoFromBook(doc) {
       var s = '';
       var nauthors=1;
+      var neditors=1;
       var tdivs = doc.getElementsByClassName('bookinfo_sectionwrap');
       //Yes, there are pages with more than one: see /books?id=xh0YAAAAYAAJ
       for(var ti=0;ti<tdivs.length;++ti) {
@@ -85,11 +82,19 @@ if(!this.gbcitation && window===window.top) {
             continue;
           }
           if(t.startsWith('Compiled by')) {
-            s += ' | editor='+t.substr(12); //editor1=... etc. doesn't work
+            var editors = t.substr(12).split(',');
+            for(var aj=0; aj<editors.length; ++aj) {
+              s += ' | editor'+neditors+'-last='+editors[aj];
+              ++neditors;
+            }
             continue;
           }
           if(t.startsWith('edited by') || t.startsWith('Edited by')) {
-            s += ' |editor='+t.substr(10);
+            var editors = t.substr(10).split(',');
+            for(var aj=0; aj<editors.length; ++aj) {
+              s += ' | editor'+neditors+'-last='+editors[aj];
+              ++neditors;
+            }
             continue;
           }
           if(t.startsWith('Edition')) {
