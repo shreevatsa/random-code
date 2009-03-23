@@ -95,7 +95,7 @@ if(!this.gbcitation && window===window.top) {
           if(t.startsWith('Published by')) {
             var year = t.match(/\d+$/);
             if(year !== null) {
-              s += ' | year='+year[0];
+              s = ' | year='+year[0] + s;
               s += ' | publisher='+t.substring(13,t.length-year[0].length-2); //2 is for ', '
             } else {
               s += ' | publisher='+t.substr(13);
@@ -105,7 +105,7 @@ if(!this.gbcitation && window===window.top) {
           if(t.startsWith('Published')) {
             var year = t.match(/\d+$/);
             if(year !== null) {
-              s += ' | year='+year[0];
+              s = ' | year='+year[0] + s;
             }
             continue;
           }
