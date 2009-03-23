@@ -27,22 +27,20 @@
   could handle better.
   Suggestions for improvement are very much welcome!
 
-  KNOWN BUGS
-  ==========
-  Authors present in both "By" and "Translated by" are repeated.
-
   Changelog:
   2009-03-15 First version
   2009-03-15 Remove unneeded @requires
   2009-03-15 Return to using wget
   2009-03-22 Take care of 'Published 1885' etc.
   2009-03-22 Handle translators and multiple info divs
+  2009-03-22 Put year at the beginning, making it easier to sort by
 */
 
 if(!this.gbcitation && window===window.top) {
   var gbcitation = function () {
 
     function do_doc(url, func) { wget(url, func, runGM=false, div=true); }
+    if( typeof console == 'undefined' ){ console = { log: function () {} }; }
 
     String.prototype.startsWith = function(str) {
       return (this.indexOf(str) === 0);
