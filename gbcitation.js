@@ -39,6 +39,7 @@
   2009-03-22 Take care of 'Published 1885' etc.
   2009-03-22 Handle translators and multiple info divs
   2009-03-22 Put year at the beginning, making it easier to sort by
+  2009-03-23 Change the annoying first alert() to console.log()
 */
 
 if(!this.gbcitation && window===window.top) {
