@@ -121,6 +121,22 @@ if(!this.imdbwhis && window===window.top) {
       a.parentNode.insertBefore(link, a.nextSibling);
     }
 
+    function add_removemovie_link(a, tt) {
+      var link = document.createElement('a');
+      link.href = 'remove://this-movie-from-your-seen-list';
+      link.innerHTML = '[-]';
+      var onclick = function(event) {
+        link.innerHTML = ' [Removing...]';
+        event.stopPropagation();
+        event.preventDefault();
+        my_movies[tt] = undefined;
+        gm_setValue('my_movies', JSON.stringify(my_movies));
+        link.innerHTML = '[\u2713]';
+      };
+      link.addEventListener('click', onclick, false);
+      a.parentNode.insertBefore(link, a.nextSibling);
+    }
+
     function highlight(a) {
       a.style.fontWeight = 'bold';
       a.style.color = 'green';
@@ -138,7 +154,7 @@ if(!this.imdbwhis && window===window.top) {
       for(var i=0; i<as.length; ++i) {
         var a = as[i];
         var tt = get_tt(a.href); if(!(tt)) { continue; }
-        if(seen_movie(tt)) { highlight(a); }
+        if(seen_movie(tt)) { highlight(a); add_removemovie_link(a,tt); }
         else { add_addmovie_link(a, tt); }
       }
     }
