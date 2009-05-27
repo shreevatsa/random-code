@@ -2,6 +2,8 @@
 #include <vector>
 #include <sstream>
 #include <string>
+#include <set>
+#include <map>
 using namespace std;
 
 #define FCO(i,a,b) for(int i=a,_b=b;i<_b;++i)
@@ -54,11 +56,29 @@ int main() {
     }
   }
 
+  map<int, VI > fork;
+  set<int> goodn;
   FCO(n,2,MAXN) {
     if(fifac[n]!=n and good(n))
       {
-        cout<<n<<": "<<factors(n)<<endl;
+        goodn.insert(n);
+        int k = (n-1)/(n-phi(n));
+        fork[k].PB(n);
+        cout<<n<<": "<<k<<" "<<factors(n);
+        int m = n/fifac[n];
+        if(not(fifac[m]==m or goodn.count(m))) cout<<"\t\t<--WHOA";
+        cout<<endl;
       }
+  }
+  FOREACH(it,fork) {
+    int k = it->first;
+    cout<<"For "<<k<<": "<<endl;
+    VI v = it->second;
+    FOZ(i,v) {
+      int n = v[i];
+      int k = (n-1)/(n-phi(n));
+      cout<<"\t: "<<factors(v[i])<<": "<<v[i]<<endl;
+    }
   }
 
   return 0;
