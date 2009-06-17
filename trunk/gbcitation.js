@@ -36,13 +36,20 @@
   2009-03-22 Put year at the beginning, making it easier to sort by
   2009-03-23 Change the annoying first alert() to console.log()
   2009-03-23 Fix the multiple editors bug
+  2009-06-14 Google changed (improved!) its markup last week; script rewritten.
 */
 
-if(!this.gbcitation && window===window.top) {
+if(!this.gbcitation && window === window.top) {
   var gbcitation = function () {
 
-    function do_doc(url, func) { wget(url, func, runGM=false, div=true); }
-    if( typeof console == 'undefined' ){ console = { log: function () {} }; }
+    function do_doc(url, func) { wget(url, func, runGM=false, div=false); }
+    if( typeof console == 'undefined' ) { console = { log: function () {} }; }
+    function assert(cond) {
+      if (!cond) {
+        //alert("Assertion failed: " + cond);
+        throw new Error("Assertion failed: " + cond);
+      }
+    }
 
     String.prototype.startsWith = function(str) {
       return (this.indexOf(str) === 0);
@@ -52,93 +59,72 @@ if(!this.gbcitation && window===window.top) {
       var s = '';
       var nauthors=1;
       var neditors=1;
-      var tdivs = doc.getElementsByClassName('bookinfo_sectionwrap');
-      //Yes, there are pages with more than one: see /books?id=xh0YAAAAYAAJ
-      for(var ti=0;ti<tdivs.length;++ti) {
-        var tdiv = tdivs[ti];
-        var pieces = tdiv.childNodes;
-        var n = pieces.length;
-        for(var i=0; i<n; ++i) {
-          var p = pieces[i];
-          if(p.className==='bookinfo_section_line book_title_line') {
-            s += ' | title='+p.innerHTML;
-            continue;
-          }
-          var t = p.innerHTML;
-          if(t.startsWith('By')) {
-            var authors = t.substr(3).split(',');
-            for(var aj=0; aj<authors.length; ++aj) {
-              s += ' | author'+nauthors+'='+authors[aj];
-              ++nauthors;
-            }
-            continue;
-          }
-          if(t.startsWith('Translated by')) {
-            var authors = t.substr(14).split(',');
-            for(var aj=0; aj<authors.length; ++aj) {
-              s += ' | author'+nauthors+'='+authors[aj] + " (transl.)";
-              ++nauthors;
-            }
-            continue;
-          }
-          if(t.startsWith('Compiled by')) {
-            var editors = t.substr(12).split(',');
-            for(var aj=0; aj<editors.length; ++aj) {
-              s += ' | editor'+neditors+'-last='+editors[aj];
-              ++neditors;
-            }
-            continue;
-          }
-          if(t.startsWith('edited by') || t.startsWith('Edited by')) {
-            var editors = t.substr(10).split(',');
-            for(var aj=0; aj<editors.length; ++aj) {
-              s += ' | editor'+neditors+'-last='+editors[aj];
-              ++neditors;
-            }
-            continue;
-          }
-          if(t.startsWith('Edition')) {
-            s += ' | edition='+t.substr(9);
-            continue;
-          }
-          if(t.startsWith('Published by')) {
-            var year = t.match(/\d+$/);
-            if(year !== null) {
-              s = ' | year='+year[0] + s;
-              s += ' | publisher='+t.substring(13,t.length-year[0].length-2); //2 is for ', '
-            } else {
-              s += ' | publisher='+t.substr(13);
-            }
-            continue;
-          }
-          if(t.startsWith('Published')) {
-            var year = t.match(/\d+$/);
-            if(year !== null) {
-              s = ' | year='+year[0] + s;
-            }
-            continue;
-          }
+      var metadata_rows = doc.getElementById('metadata_content_table').childNodes[0].childNodes;
+      for(var ti=0;ti<metadata_rows.length;++ti) {
+        var mrow = metadata_rows[ti].childNodes;
+        assert(mrow.length === 2);
+        assert(mrow[0].className === 'metadata_label');
+        assert(mrow[1].className === 'metadata_value');
+        var label = mrow[0].innerHTML;
+        var value = mrow[1].childNodes[0].innerHTML.replace('[','&#91;','g').replace(']','&#93;','g');
 
-          if(t.startsWith('ISBN')) {
-            var isbn = t.match(/\d+$/);
-            if(isbn===null || isbn.length<1) {
-              alert('No match for trailing ISBN in "'+t+'".');
-            } else {
-              s += ' | isbn='+isbn[0];
-            }
-            continue;
-          }
-          if(t.startsWith('Original from') || t.startsWith('Digitized')) {
-            continue;
-          }
-          var pages = t.match(/(\d+) pages/i);
-          if(pages!==null) {
-            if(pages.length<2) { alert('Too short match: '+pages[0]+' only.'); }
-            //s += ' | pages='+pages[1];
-            continue;
-          }
-          alert('Don\'t know what to do with "'+t+'"');
+        if(label === 'Title') {
+          s += ' | title = ' + value;
+          continue;
         }
+        if(label === 'Author' || label === 'Authors' || label === 'Translated by') {
+          var authors = value.split(',');
+          for(var aj=0; aj<authors.length; ++aj) {
+            s += ' | author'+nauthors+'=' + authors[aj];
+            if(label==='Translated by') { s+=' (transl.)'; }
+            ++nauthors;
+          }
+          continue;
+        }
+        if(label === 'Compiled by' || label === 'Editor' || label === 'Editors') {
+          var editors = value.split(',');
+          for(var ej=0; ej<editors.length; ++ej) {
+            s += ' | editor'+neditors+'-last='+editors[ej];
+            ++neditors;
+          }
+          continue;
+        }
+        if(label === 'Edition') {
+          s += ' | edition='+value;
+          continue;
+        }
+        if(label === 'Publisher') {
+          var year = value.match(/\d+$/); //A trailing sequence of digits
+          if(year !== null) {
+            s = ' | year='+year[0] + s;
+            s += ' | publisher='+value.substring(0,value.length-year[0].length-2); //2 is for ', '
+          } else {
+            s += ' | publisher='+value;
+          }
+          continue;
+        }
+        if(label === 'Published') {
+          var pyear = value.match(/\d+$/);
+          if(pyear !== null) {
+            s = ' | year='+pyear[0] + s;
+          }
+          continue;
+        }
+        if(label === 'ISBN') {
+          var isbn = value.match(/\d+$/); //A trailing sequence of digits
+          if(isbn===null || isbn.length<1) {
+            alert('No match for trailing ISBN in "'+value+'".');
+          } else {
+            s += ' | isbn='+isbn[0];
+          }
+          continue;
+        }
+        if(label.startsWith('Original from') || label.startsWith('Digitized') ||
+           label.startsWith('Length') || label.startsWith('Subjects') ||
+           label.startsWith('Item notes')) {
+          continue;
+        }
+        alert('Don\'t know what to do with "'+label+'"');
       }
       return s;
     }
@@ -168,7 +154,8 @@ if(!this.gbcitation && window===window.top) {
 
     //Add link in title div that says 'Generate citation'
     function add_link() {
-      var topbar = document.getElementById('gaia_bar').parentNode;
+      //var topBarRight = document.getElementById("r_toolbar").parentNode;
+      var bar = document.getElementById('volumebartable');
       var link = document.createElement('a');
       link.href = 'show://a-citation-for-this-book';
       link.innerHTML = '[Show citation]';
@@ -178,7 +165,10 @@ if(!this.gbcitation && window===window.top) {
         showCitationFromPage();
       };
       link.addEventListener('click', showcitation, false);
-      topbar.appendChild(link);
+      var lp = document.createElement('td');
+      lp.appendChild(link);
+      //topBarRight.appendChild(lp);
+      bar.childNodes[0].childNodes[0].appendChild(lp);
     }
     add_link();
 
