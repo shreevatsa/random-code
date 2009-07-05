@@ -3,7 +3,7 @@
 // @description   Generates {{citation}} wiki markup from Google Books links
 // @namespace     http://code.google.com/p/random-code/
 // @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
-// @include       http://books.google.com/*
+// @include       http://books.google.tld/*
 // ==/UserScript==
 //
 // Copyright (c) 2009, Shreevatsa R.
