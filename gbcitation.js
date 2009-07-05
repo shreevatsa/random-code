@@ -37,6 +37,7 @@
   2009-03-23 Change the annoying first alert() to console.log()
   2009-03-23 Fix the multiple editors bug
   2009-06-14 Google changed (improved!) its markup last week; script rewritten.
+  2009-07-04 Change include from "books.google.com" to "books.google.tld"
 */
 
 if(!this.gbcitation && window === window.top) {
