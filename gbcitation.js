@@ -38,6 +38,7 @@
   2009-03-23 Fix the multiple editors bug
   2009-06-14 Google changed (improved!) its markup last week; script rewritten.
   2009-07-04 Change include from "books.google.com" to "books.google.tld"
+  2009-07-11 Refrain from adding "edition=illustrated".
 */
 
 if(!this.gbcitation && window === window.top) {
@@ -91,7 +92,7 @@ if(!this.gbcitation && window === window.top) {
           continue;
         }
         if(label === 'Edition') {
-          s += ' | edition='+value;
+          if(value !== 'illustrated') { s += ' | edition='+value; }
           continue;
         }
         if(label === 'Publisher') {
