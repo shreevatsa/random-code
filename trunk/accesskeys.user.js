@@ -14,5 +14,5 @@ r=document.evaluate("//*[@accesskey]", document, null, XPathResult.ORDERED_NODE_
 for(i=0;i<r.snapshotLength;i++) {
   item=r.snapshotItem(i);
   k=item.getAttribute("accesskey");
-  if(k.match(/^[fbaenpd]$/i)) item.removeAttribute("accesskey");
+  if(k.match(/^[fbaenpdk]$/i)) item.removeAttribute("accesskey");
 }
