@@ -153,26 +153,24 @@ if(!this.gbcitation && window === window.top) {
         });
     }
 
-    //Add link in title div that says 'Generate citation'
-    function add_link() {
-      //var topBarRight = document.getElementById("r_toolbar").parentNode;
+    //Add a link to the top bar
+    function add_link(text, title, func) {
       var bar = document.getElementById('volumebartable');
       var link = document.createElement('a');
-      link.href = 'show://a-citation-for-this-book';
-      link.innerHTML = '[Show citation]';
-      var showcitation = function(event) {
+      link.title = title;
+      link.innerHTML = text;
+      var dofunc = function(event) {
         event.stopPropagation();
         event.preventDefault();
-        showCitationFromPage();
+        func();
       };
-      link.addEventListener('click', showcitation, false);
+      link.addEventListener('click', dofunc, false);
       var lp = document.createElement('td');
       lp.appendChild(link);
-      //topBarRight.appendChild(lp);
       bar.childNodes[0].childNodes[0].appendChild(lp);
     }
-    add_link();
+    add_link('[Show citation]', 'Show a citation for this book', showCitationFromPage);
+    add_link('[Clean up link]', 'Remove useless parameters from URI', cleanURI);
 
-    // gm_registerMenuCommand('Generate citation', function() { alert(citation()); });
   }();
  }
