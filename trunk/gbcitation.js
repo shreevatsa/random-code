@@ -23,8 +23,6 @@
 
   Notes
   =====
-  It works somewhat, but there are several things it doesn't handle, or
-  could handle better.
   Suggestions for improvement are very much welcome!
 
   Changelog:
@@ -40,13 +38,13 @@
   2009-07-04 Change include from "books.google.com" to "books.google.tld"
   2009-07-11 Refrain from adding "edition=illustrated".
   2009-07-19 Slightly longer "Don't know what to do with" message.
+  2009-07-19 Changed Firebug-specific console.log() to GM_log
 */
 
 if(!this.gbcitation && window === window.top) {
   var gbcitation = function () {
 
     function do_doc(url, func) { wget(url, func, runGM=false, div=false); }
-    if( typeof console == 'undefined' ) { console = { log: function () {} }; }
     function assert(cond) {
       if (!cond) {
         //alert("Assertion failed: " + cond);
@@ -148,7 +146,7 @@ if(!this.gbcitation && window === window.top) {
     function showCitationFromPage() {
       var u = location.href;
       var book = u.split('&')[0];
-      console.log('Getting info from '+book);
+      GM_log('Getting info from '+book);
       do_doc(book, function(doc) {
           var info = infoFromBook(doc);
           showCitationFromInfo(info, u);
