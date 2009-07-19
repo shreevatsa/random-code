@@ -39,6 +39,7 @@
   2009-07-11 Refrain from adding "edition=illustrated".
   2009-07-19 Slightly longer "Don't know what to do with" message.
   2009-07-19 Changed Firebug-specific console.log() to GM_log
+  2009-07-19 Add some code to clean up links first
 */
 
 if(!this.gbcitation && window === window.top) {
@@ -151,6 +152,28 @@ if(!this.gbcitation && window === window.top) {
           var info = infoFromBook(doc);
           showCitationFromInfo(info, u);
         });
+    }
+
+    function cleanURI() {
+      var u = location.href, nu='';
+      var parts = u.split('&');
+      for(var i=0; i<parts.length; ++i) {
+        var [p, v, e] = parts[i].split('='); assert(typeof e === 'undefined');
+        //GM_log(p + ' is ' + v);
+        if(p!=='hl' &&               //language of the interface
+           p!=='ei' &&               //Some user-specific (cookie-specific?) constant
+           p!=='ots' && p!=='sig' && //Similar long sigs, don't know what
+           p!=='source' &&           //how you got there: gbs_hpintrst, bl(?) etc.
+           p!=='printsec' &&         //e.g. printsec=frontcover
+           p!=='sa' &&               //e.g. sa=X
+           p!=='oi' &&               //e.g. oi=book_result
+           p!=='ct' &&               //e.g. ct=result
+           p!=='resnum') {
+          nu += (nu!=='' ? '&' : '')+p+'='+v;
+        }
+      }
+      //GM_log('new url is ' + nu);
+      location.href = nu;
     }
 
     //Add a link to the top bar
