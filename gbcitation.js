@@ -39,6 +39,7 @@
   2009-06-14 Google changed (improved!) its markup last week; script rewritten.
   2009-07-04 Change include from "books.google.com" to "books.google.tld"
   2009-07-11 Refrain from adding "edition=illustrated".
+  2009-07-19 Slightly longer "Don't know what to do with" message.
 */
 
 if(!this.gbcitation && window === window.top) {
@@ -126,7 +127,7 @@ if(!this.gbcitation && window === window.top) {
            label.startsWith('Item notes')) {
           continue;
         }
-        alert('Don\'t know what to do with "'+label+'"');
+        alert('Don\'t know what to do with "'+label+': ' + value +'"');
       }
       return s;
     }
