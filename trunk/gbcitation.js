@@ -40,22 +40,15 @@
   2009-07-19 Slightly longer "Don't know what to do with" message.
   2009-07-19 Changed Firebug-specific console.log() to GM_log
   2009-07-19 Add some code to clean up links first
+  2009-07-22 Fixed bug in clean-up code
 */
 
 if(!this.gbcitation && window === window.top) {
   var gbcitation = function () {
 
     function do_doc(url, func) { wget(url, func, runGM=false, div=false); }
-    function assert(cond) {
-      if (!cond) {
-        //alert("Assertion failed: " + cond);
-        throw new Error("Assertion failed: " + cond);
-      }
-    }
-
-    String.prototype.startsWith = function(str) {
-      return (this.indexOf(str) === 0);
-    };
+    function assert(cond) { if (!cond) { throw new Error("Assertion failed: " + cond); } }
+    String.prototype.startsWith = function(str) { return (this.indexOf(str) === 0); };
 
     function infoFromBook(doc) {
       var s = '';
@@ -155,15 +148,17 @@ if(!this.gbcitation && window === window.top) {
     }
 
     function cleanURI() {
-      var u = location.href, nu='';
+      var q = location.href.indexOf('?'), prefix = location.href.substr(0,q+1), u = location.href.substr(q+1), nu='';
       var parts = u.split('&');
       for(var i=0; i<parts.length; ++i) {
         var [p, v, e] = parts[i].split('='); assert(typeof e === 'undefined');
-        //GM_log(p + ' is ' + v);
+        GM_log(p + ' is ' + v);
         if(p!=='hl' &&               //language of the interface
            p!=='ei' &&               //Some user-specific (cookie-specific?) constant
            p!=='ots' && p!=='sig' && //Similar long sigs, don't know what
            p!=='source' &&           //how you got there: gbs_hpintrst, bl(?) etc.
+           p!=='lr' &&               //restrict searches to a language
+           p!=='as_brr' &&           //as_brr=3 restricts to books with preview
            p!=='printsec' &&         //e.g. printsec=frontcover
            p!=='sa' &&               //e.g. sa=X
            p!=='oi' &&               //e.g. oi=book_result
@@ -172,7 +167,8 @@ if(!this.gbcitation && window === window.top) {
           nu += (nu!=='' ? '&' : '')+p+'='+v;
         }
       }
-      //GM_log('new url is ' + nu);
+      nu = prefix + nu;
+      GM_log('new url is ' + nu);
       location.href = nu;
     }
 
