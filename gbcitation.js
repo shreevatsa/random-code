@@ -41,6 +41,7 @@
   2009-07-19 Changed Firebug-specific console.log() to GM_log
   2009-07-19 Add some code to clean up links first
   2009-07-22 Fixed bug in clean-up code
+  2009-07-22 Warn on unrecognised page numbers
 */
 
 if(!this.gbcitation && window === window.top) {
@@ -132,6 +133,10 @@ if(!this.gbcitation && window === window.top) {
       if (pg!==null) {
         if(pg.length<2) { alert('Too short match: '+pg[0]+' only.'); }
         s += ' | page='+pg[1];
+      } else {
+        if (url.match(/&pg=/i)!==null) {
+          alert("Page number is not PAsomething.");
+        }
       }
       s += ' | url=' + url + '}}';
       alert(s);
