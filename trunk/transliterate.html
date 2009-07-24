@@ -4,7 +4,7 @@
   <title>Sanskrit transliteration</title>
 <style type="text/css">
 div { width:49%; border: 0px solid green; }
-div.devanagaridiv, div.htmldiv, div.iastdiv, div.IASTdiv { float:right; clear:right;}
+div.devanagaridiv, div.htmldiv, div.iastdiv, div.IASTdiv, div.ipadiv { float:right; clear:right;}
 div.harvardkyotodiv,div.itransdiv,div.velthuisdiv { float:left; clear:left;}
 textarea {
     width: 90%;
@@ -32,6 +32,8 @@ these instructions</a> for ways to input Sanskrit directly (without transliterat
       <li title="IAST">IAST, uppercase</li>
       <li title="velthuis"><a href="http://en.wikipedia.org/wiki/Devanagari_transliteration#Transliteration_Comparison">Velthuis</a> (for <a href="http://sanskrit.inria.fr/">INRIA</a>, etc.)</li>
       <li title="html">HTML numeric character references</li>
+      <!--<li title="kannada">Kannada (broken)</li>-->
+      <li title="ipa">IPA (approximate, incomplete, experimental!)</li>
     </ul>
   </div>
 
@@ -60,7 +62,10 @@ function makeentryarea() {
     myolddiv.appendChild(mynewdiv);
     */
 
-    document.writeln('<div class="'+ta[i].getAttribute("title")+'div"> <p>' + ta[i].innerHTML + '<br/><textarea id="' + ta[i].getAttribute("title") + '"></textarea></div>');
+    var tareahtml = '<textarea id="' + ta[i].getAttribute("title") + '"';
+    if(ta[i].getAttribute("title") === 'kannada') { tareahtml += ' lang="kn"'; }
+    tareahtml +=  '></textarea>';
+    document.writeln('<div class="'+ta[i].getAttribute("title")+'div"> <p>' + ta[i].innerHTML + '<br/>' + tareahtml + '</div>');
   }
   document.close();
 }
