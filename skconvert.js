@@ -125,7 +125,35 @@ if(!this.SKconvert) {
                         'T', 'Th', 'D', 'Dh', 'N',
                         'P', 'Ph', 'B', 'Bh', 'M',
                         'Y', 'R', 'L', 'V',
-                        'Ś', 'Ṣ', 'S', 'H']
+                        'Ś', 'Ṣ', 'S', 'H'],
+
+        'kannada':       ['ಅ', 'ಆ', 'ಇ', 'ಈ', 'ಉ', 'ಊ',
+                          'ಋ', 'ೠ', 'ಌ', 'ೡ',
+                          'ಏ', 'ಐ', 'ಓ', 'ಔ',
+                          'ಂ', 'ಃ',
+
+                          'ಕ', 'ಖ', 'ಗ', 'ಘ', 'ಙ',
+                          'ಚ', 'ಛ', 'ಜ', 'ಝ', 'ಞ',
+                          'ಟ', 'ಠ', 'ಡ', 'ಢ', 'ಣ',
+                          'ತ', 'ಥ', 'ದ', 'ಧ', 'ನ',
+                          'ಪ', 'ಫ', 'ಬ', 'ಭ', 'ಮ',
+                          'ಯ', 'ರ', 'ಲ', 'ವ',
+                          'ಶ', 'ಷ', 'ಸ', 'ಹ'],
+
+        'ipa':           ['ɐ', 'ɑː', 'i', 'iː', 'u', 'uː',
+                          'ɻ', 'ɻː', 'ɭ', 'ɭː',
+                          'eː', 'əi', 'oː', 'əu',
+                          'MMMM', 'HHHH',
+
+                          'k', 'kʰ', 'g', 'gʱ', 'ŋ',
+                          //'c͡ç', 'c͡çʰ', 'ɟ͡ʝ', 'ɟ͡ʝʱ', 'ɲ',
+                          'c', 'cʰ', 'ɟ', 'ɟʱ', 'ɲ',
+                          'ʈ', 'ʈʰ', 'ɖ', 'ɖʱ', 'ɳ',
+                          't̪', 't̪ʰ', 'd̪', 'd̪ʱ', 'n̪',
+                          'p', 'pʰ', 'b', 'bʱ', 'm',
+
+                          'j', 'r', 'l', 'ʋ',
+                          'ɕ', 'ʂ', 's̪', 'ɦ']
         };
 
         //Make object like {'a':'अ', 'A':'आ', 'ai':'ऐ', 'au':'औ', 'k':'क्'}
@@ -171,8 +199,8 @@ if(!this.SKconvert) {
                 'ऐ' : 'ै',
                 'ओ' : 'ो',
                 'औ' : 'ौ',
-                'ं' : 'ं', //These two are included to deal with
-                'ः' : 'ः'  //"kM" and "kH", for example.
+//                 'ं' : 'ं', //These two are included to deal with
+//                 'ः' : 'ः'  //"kM" and "kH", for example.
             };
             for(var i in matra) {
                 s = s.replace(RegExp(virama+i, "g"), matra[i]);
@@ -263,7 +291,7 @@ if(!this.SKconvert) {
                 return this.devanagari2u(t);
             }
         };
-        for(var f in {itrans:'', harvardkyoto:'', velthuis:'', IAST:'', iast:''}) {
+        for(var f in {itrans:'', harvardkyoto:'', velthuis:'', IAST:'', iast:'', kannada:'', ipa:''}) {
           var g = function () { //Need to do it inside a function: the broken "closure" model
             var t = maketrie(to_sk(alphabets[f]));
             var u = maketrie(from_sk(alphabets[f]));
