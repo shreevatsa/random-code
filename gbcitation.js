@@ -42,12 +42,13 @@
   2009-07-19 Add some code to clean up links first
   2009-07-22 Fixed bug in clean-up code
   2009-07-22 Warn on unrecognised page numbers
+  2009-07-31 Google changed again. Other minor code improvements.
 */
 
 if(!this.gbcitation && window === window.top) {
   var gbcitation = function () {
 
-    function do_doc(url, func) { wget(url, func, runGM=false, div=false); }
+    function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/false); }
     function assert(cond) { if (!cond) { throw new Error("Assertion failed: " + cond); } }
     String.prototype.startsWith = function(str) { return (this.indexOf(str) === 0); };
 
@@ -131,7 +132,7 @@ if(!this.gbcitation && window === window.top) {
       s += info;
       var pg = url.match(/&pg=PA(\d+)/i);
       if (pg!==null) {
-        if(pg.length<2) { alert('Too short match: '+pg[0]+' only.'); }
+        if(pg.length<2) { alert('Too short match in pg: '+pg[0]+' only.'); }
         s += ' | page='+pg[1];
       } else {
         if (url.match(/&pg=/i)!==null) {
@@ -143,7 +144,7 @@ if(!this.gbcitation && window === window.top) {
     }
 
     function showCitationFromPage() {
-      var u = location.href;
+      var u = cleanURI();//location.href;
       var book = u.split('&')[0];
       GM_log('Getting info from '+book);
       do_doc(book, function(doc) {
@@ -153,7 +154,9 @@ if(!this.gbcitation && window === window.top) {
     }
 
     function cleanURI() {
-      var q = location.href.indexOf('?'), prefix = location.href.substr(0,q+1), u = location.href.substr(q+1), nu='';
+      var o = location.href; var hash = o.indexOf('#');
+      if(hash > -1) { o = o.substr(0,hash); }
+      var q = o.indexOf('?'), prefix = o.substr(0,q+1), u = o.substr(q+1), nu='';
       var parts = u.split('&');
       for(var i=0; i<parts.length; ++i) {
         var [p, v, e] = parts[i].split('='); assert(typeof e === 'undefined');
@@ -174,12 +177,12 @@ if(!this.gbcitation && window === window.top) {
       }
       nu = prefix + nu;
       GM_log('new url is ' + nu);
-      location.href = nu;
+      return nu;
     }
 
     //Add a link to the top bar
     function add_link(text, title, func) {
-      var bar = document.getElementById('volumebartable');
+      var bar = document.getElementById('titlebar'); //formerly 'volumebartable'
       var link = document.createElement('a');
       link.title = title;
       link.innerHTML = text;
@@ -189,12 +192,14 @@ if(!this.gbcitation && window === window.top) {
         func();
       };
       link.addEventListener('click', dofunc, false);
-      var lp = document.createElement('td');
-      lp.appendChild(link);
-      bar.childNodes[0].childNodes[0].appendChild(lp);
+      //var lp = document.createElement('td');
+      //lp.appendChild(link);
+      //bar.childNodes[0].childNodes[0].appendChild(lp);
+      bar.appendChild(link);
     }
+    GM_log("Adding links to top bar");
     add_link('[Show citation]', 'Show a citation for this book', showCitationFromPage);
-    add_link('[Clean up link]', 'Remove useless parameters from URI', cleanURI);
+    add_link('[Clean up link]', 'Remove useless parameters from URI', function() { location.href = cleanURI(); });
 
   }();
  }

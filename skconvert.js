@@ -49,7 +49,7 @@ if(!this.SKconvert) {
         var virama = '्';
 
         var alphabets = {
-        'sk':          ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ',
+        'sk':        ['अ', 'आ', 'इ', 'ई', 'उ', 'ऊ',
                       'ऋ', 'ॠ', 'ऌ', 'ॡ',
                       'ए', 'ऐ', 'ओ', 'औ',
                       'ं', 'ः',
@@ -75,31 +75,31 @@ if(!this.SKconvert) {
                       'y', 'r', 'l', 'v',
                       'z', 'S', 's', 'h'],
 
-        'itrans':      ['a', ['aa','A'], 'i', ['ii','I'], 'u', ['uu','U'],
-                          ['RRi','R^i'], ['RRI','R^I'], ['LLi','L^i'], ['LLI','L^I'],
-                          'e', 'ai', 'o', 'au',
-                          'M', 'H',
+        'itrans':     ['a', ['aa','A'], 'i', ['ii','I'], 'u', ['uu','U'],
+                      ['RRi','R^i'], ['RRI','R^I'], ['LLi','L^i'], ['LLI','L^I'],
+                      'e', 'ai', 'o', 'au',
+                      'M', 'H',
 
-                          'k', 'kh', 'g', 'gh', ['~N','N^'],
-                          'ch', 'Ch', 'j', 'jh', ['~n','JN'],
-                          'T', 'Th', 'D', 'Dh', 'N',
-                          't', 'th', 'd', 'dh', 'n',
-                          'p', 'ph', 'b', 'bh', 'm',
-                          'y', 'r', 'l', ['v','w'],
+                      'k', 'kh', 'g', 'gh', ['~N','N^'],
+                      'ch', 'Ch', 'j', 'jh', ['~n','JN'],
+                      'T', 'Th', 'D', 'Dh', 'N',
+                      't', 'th', 'd', 'dh', 'n',
+                      'p', 'ph', 'b', 'bh', 'm',
+                      'y', 'r', 'l', ['v','w'],
                       'sh', 'Sh', 's', 'h'],
 
-        'velthuis':           ['a', 'aa', 'i', 'ii', 'u', 'uu',
-                            '.r', '.rr', '.l', '.ll',
-                            'e', 'ai', 'o', 'au',
-                            '.m', '.h',
+        'velthuis':   ['a', 'aa', 'i', 'ii', 'u', 'uu',
+                      '.r', '.rr', '.l', '.ll',
+                      'e', 'ai', 'o', 'au',
+                      '.m', '.h',
 
-                            'k', 'kh', 'g', 'gh', '"n',
-                            'c', 'ch', 'j', 'jh', '~n',
-                            '.t', '.th', '.d', '.dh', '.n',
-                            't', 'th', 'd', 'dh', 'n',
-                            'p', 'ph', 'b', 'bh', 'm',
-                            'y', 'r', 'l', 'v',
-                             '"s', '.s', 's', 'h'],
+                      'k', 'kh', 'g', 'gh', '"n',
+                      'c', 'ch', 'j', 'jh', '~n',
+                      '.t', '.th', '.d', '.dh', '.n',
+                      't', 'th', 'd', 'dh', 'n',
+                      'p', 'ph', 'b', 'bh', 'm',
+                      'y', 'r', 'l', 'v',
+                       '"s', '.s', 's', 'h'],
 
         'iast':          ['a', 'ā', 'i', 'ī', 'u', 'ū',
                         'ṛ', 'ṝ', 'ḷ', 'ḹ',
@@ -143,7 +143,7 @@ if(!this.SKconvert) {
         'ipa':           ['ɐ', 'ɑː', 'i', 'iː', 'u', 'uː',
                           'ɻ', 'ɻː', 'ɭ', 'ɭː',
                           'eː', 'əi', 'oː', 'əu',
-                          'MMMM', 'HHHH',
+                          'MMMMMMMMMMMMMMMMMMMM', 'HHHHHHHHHHHHHHHHHHHH',
 
                           'k', 'kʰ', 'g', 'gʱ', 'ŋ',
                           //'c͡ç', 'c͡çʰ', 'ɟ͡ʝ', 'ɟ͡ʝʱ', 'ɲ',
@@ -183,8 +183,8 @@ if(!this.SKconvert) {
 
         //////////////////////////////////////////////////////////////////////
 
-        function fixmatras(s) {
-            var matra = {
+        var matras = {
+            'sk' : {
                 'अ' : '',
                 'आ' : 'ा',
                 'इ' : 'ि',
@@ -199,49 +199,47 @@ if(!this.SKconvert) {
                 'ऐ' : 'ै',
                 'ओ' : 'ो',
                 'औ' : 'ौ',
-//                 'ं' : 'ं', //These two are included to deal with
-//                 'ः' : 'ः'  //"kM" and "kH", for example.
-            };
+                 'ं' : 'ं', //These two are included to deal with
+                 'ः' : 'ः'  //"kM" and "kH", for example.
+            }
+        };
+
+        var unmatras = { };
+        for(var lang in matras) {
+            if(unmatras[lang] === undefined) unmatras[lang]={};
+            for(var v in matras[lang]) {
+                var m = matras[lang][v];
+                if(m!=='') {
+                    unmatras[lang][m] = v;
+                }
+            }
+        }
+  
+        function fixmatras(s, lang) { //Replace क्इ            with                 कि
+            var matra = matras[lang];
             for(var i in matra) {
                 s = s.replace(RegExp(virama+i, "g"), matra[i]);
             }
             return s;
         }
 
-        function unfixmatras(s) {
-            var vowel = {
-                'ा' : 'आ',
-                'ि' : 'इ',
-                'ी' : 'ई',
-                'ु' : 'उ',
-                'ू' : 'ऊ',
-                'ृ' : 'ऋ',
-                'ॄ' : 'ॠ',
-                'ॢ' : 'ऌ',
-                'ॣ' : 'ॡ',
-                'े' : 'ए',
-                'ै' : 'ऐ',
-                'ो' : 'ओ',
-                'ौ' : 'औ'
-            };
-            var consonants = {'क':'', 'ख':'', 'ग':'', 'घ':'', 'ङ':'',
-                              'च':'', 'छ':'', 'ज':'', 'झ':'', 'ञ':'',
-                              'ट':'', 'ठ':'', 'ड':'', 'ढ':'', 'ण':'',
-                              'त':'', 'थ':'', 'द':'', 'ध':'', 'न':'',
-                              'प':'', 'फ':'', 'ब':'', 'भ':'', 'म':'',
-                              'य':'', 'र':'', 'ल':'', 'व':'',
-                              'श':'', 'ष':'', 'स':'', 'ह':''};
-
-            for(var i in vowel) {
-                s = s.replace(RegExp(i, "g"), virama+vowel[i]);
+        function unfixmatras(s, lang) { //Replace कि            with                 क्इ
+            console.log("Vowels of the matras of " + lang + " are :"); console.log(unmatras[lang]); 
+            function isConsonant(t) { return (alphabets[lang].indexOf(t)>-1) && !(t in matras[lang]); }
+            //First, replace explicit matras with VIRAMA+VOWEL
+            for(var m in unmatras[lang]) {
+                s = s.replace(RegExp(m, "g"), virama+unmatras[lang][m]);
             }
+            //Next, replace implicit 'a' with VIRAMA+A
             var t = '';
             for(var i=0; i<s.length; ++i) {
                 t += s[i];
-                if((s[i] in consonants) && s[i+1]!==virama) { //Even if it is undefined!
+                if(isConsonant(s[i])===true && s[i+1]!==virama) { //Even if it is undefined!
                     t += virama + 'अ';
                 }
             }
+
+            console.log("After unfixing, returning " + t);
             return t;
         }
 
@@ -259,12 +257,17 @@ if(!this.SKconvert) {
 
         //////////////////////////////////////////////////////////////////////
 
+        //Ok, explanation: "u" is my canonical Unicode form, in which "ka" and "ki" are both stored as KA+VIRAMA+VOWEL.
+        //This is convenient as "k" is always KA+VIRAMA, etc.
+        //fixmatras() shows Devanagari, by replacing each VIRAMA+VOWEL with the matra for that vowel.
+        //unfixmatras() converts Devanagari to u, by replacing each MATRA with VIRAMA+VOWEL.
+
         var ret = {
             devanagari2u: function(s)  {
-                return insertbraces(unfixmatras(s));
+                return insertbraces(unfixmatras(s, 'sk'));
             },
             u2devanagari: function(s) {
-                return removebraces(fixmatras(s));
+                return removebraces(fixmatras(s, 'sk'));
             },
             u2html: function(s) {
                 s = this.u2devanagari(s);
@@ -291,15 +294,20 @@ if(!this.SKconvert) {
                 return this.devanagari2u(t);
             }
         };
+
         for(var f in {itrans:'', harvardkyoto:'', velthuis:'', IAST:'', iast:'', kannada:'', ipa:''}) {
-          var g = function () { //Need to do it inside a function: the broken "closure" model
+          var g = function () { //Need to do it inside a function, because of the broken "closure" model
             var t = maketrie(to_sk(alphabets[f]));
             var u = maketrie(from_sk(alphabets[f]));
-            ret[f+"2u"] = function(s) { return convert(s, t); };
-            ret["u2"+f] = function(s) { return convert(s, u); };
+            ret[f+"2u"] = function(s) { return convert(s, t); }
+            ret["u2"+f] = function(s) { return convert(s, u); }
           }();
         }
 
+        console.log('matras -- '); 
+        console.log(matras['sk']);
+        console.log('unmatras-- '); 
+        console.log(unmatras['sk']);
         return ret;
     }();
 }
