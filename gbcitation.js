@@ -43,13 +43,14 @@
   2009-07-22 Fixed bug in clean-up code
   2009-07-22 Warn on unrecognised page numbers
   2009-07-31 Google changed again. Other minor code improvements.
+  2009-08-01 Apparently they changed the way multiple authors work too.
 */
 
 if(!this.gbcitation && window === window.top) {
   var gbcitation = function () {
 
     function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/false); }
-    function assert(cond) { if (!cond) { throw new Error("Assertion failed: " + cond); } }
+    function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
     String.prototype.startsWith = function(str) { return (this.indexOf(str) === 0); };
 
     function infoFromBook(doc) {
@@ -63,7 +64,25 @@ if(!this.gbcitation && window === window.top) {
         assert(mrow[0].className === 'metadata_label');
         assert(mrow[1].className === 'metadata_value');
         var label = mrow[0].innerHTML;
-        var value = mrow[1].childNodes[0].innerHTML.replace('[','&#91;','g').replace(']','&#93;','g');
+        if(label.startsWith('Original from') || label.startsWith('Digitized') ||
+           label.startsWith('Length') || label.startsWith('Subjects') ||
+           label.startsWith('Item notes')) {
+          GM_log('Ignoring ' + label);
+          continue;
+        }
+        GM_log('label is ' + label);
+
+        var values = mrow[1].childNodes;
+        var value = '';
+        for(var vi=0; vi<values.length; ++vi) {
+          if(vi%2 === 1) {
+            assert(values[vi].nodeValue === ', ', "even ones are commas");
+            continue;
+          }
+          value += (value==='' ? '' : ',') + values[vi].innerHTML;
+        }
+        value = value.replace('[','&#91;','g').replace(']','&#93;','g');
+        GM_log('value is ' + value);
 
         if(label === 'Title') {
           s += ' | title = ' + value;
@@ -81,7 +100,7 @@ if(!this.gbcitation && window === window.top) {
         if(label === 'Compiled by' || label === 'Editor' || label === 'Editors') {
           var editors = value.split(',');
           for(var ej=0; ej<editors.length; ++ej) {
-            s += ' | editor'+neditors+'-last='+editors[ej];
+            s += ' | editor'+neditors+'='+editors[ej];
             ++neditors;
           }
           continue;
@@ -116,11 +135,6 @@ if(!this.gbcitation && window === window.top) {
           }
           continue;
         }
-        if(label.startsWith('Original from') || label.startsWith('Digitized') ||
-           label.startsWith('Length') || label.startsWith('Subjects') ||
-           label.startsWith('Item notes')) {
-          continue;
-        }
         alert('Don\'t know what to do with "'+label+': ' + value +'"');
       }
       return s;
@@ -136,7 +150,7 @@ if(!this.gbcitation && window === window.top) {
         s += ' | page='+pg[1];
       } else {
         if (url.match(/&pg=/i)!==null) {
-          alert("Page number is not PAsomething.");
+          alert('Page number is not PAsomething.');
         }
       }
       s += ' | url=' + url + '}}';
@@ -197,7 +211,7 @@ if(!this.gbcitation && window === window.top) {
       //bar.childNodes[0].childNodes[0].appendChild(lp);
       bar.appendChild(link);
     }
-    GM_log("Adding links to top bar");
+    GM_log('Adding links to top bar');
     add_link('[Show citation]', 'Show a citation for this book', showCitationFromPage);
     add_link('[Clean up link]', 'Remove useless parameters from URI', function() { location.href = cleanURI(); });
 
