@@ -51,6 +51,7 @@
   2008-08-25 First upload
   2008-08-26 Removed cruft, switched to external "wget" library
   2008-08-28 Turns out script didn't actually work for new users (sorry!), but 47 people installed it anyway :D Fixed now.
+  2009-08-02 What I should have done in the first version: make it fetch information only when asked.
 */
 
 if(!this.imdbwhis && window===window.top) {
@@ -58,37 +59,56 @@ if(!this.imdbwhis && window===window.top) {
     //JSLint thinks function names starting with uppercase are constructors
     var gm_log=GM_log, gm_setValue=GM_setValue, gm_getValue=GM_getValue;
     var gm_registerMenuCommand=GM_registerMenuCommand, gm_xmlhttpRequest=GM_xmlhttpRequest;
-    var do_doc = wget;
+    function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
+    //var do_doc = wget;
+    function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/true); }
     var my_movies = gm_getValue('my_movies');
     if(my_movies == undefined) my_movies='{}';
     my_movies =  JSON.parse(my_movies);
 
     //Take a page with a "cast" in it, and work on each cast row.
-    function fiddle_castpage(tt) {
-      var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].childNodes || [];
+    function fiddle_castpage(tt, linknode) {
+      var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].children || [];
       for(var i=0; i<castrows.length; ++i) {
-        fiddle_castrow(castrows[i], tt);
+        var crow = castrows[i]; //console.log(crow);
+        var name = '';
+        try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
+        linknode.innerHTML = linknode.innerHTML.replace('</small>', '['+name+']' + '</small>');
+        fiddle_castrow(crow, tt, linknode, name);
         //What does this have to do with Cuba, anyway?
       }
     }
 
     //For a cast row, get actor name, and change accordingly
-    function fiddle_castrow(crow, tt) {
+    function fiddle_castrow(crow, tt, linknode, name) {
       if(!(crow.getElementsByClassName && crow.getElementsByClassName('nm').length)) { return; }
       var a = crow.getElementsByClassName('nm')[0].getElementsByTagName('a')[0];
-      do_doc('http://www.imdb.com' + a.pathname.substr(0,15) + '/', function(doc) { crow.appendChild(seen_filmography(doc, tt)); });
+      do_doc('http://www.imdb.com' + a.pathname.substr(0,15) + '/',
+             function(doc) {
+               var sfo = seen_filmography(doc, tt);
+               if(sfo) crow.appendChild(sfo);
+               else crow.appendChild(document.createTextNode('Error: probably IMDb decided there were too many requests. Try later.'));
+               //crow.appendChild(doc); //This should never happen
+               linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
+               if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
+             });
     }
 
     //Return a div with a list of seen films in the actor's filmography
     function seen_filmography(doc, excepttt) {
-      var type = '';
-      if(doc.getElementsByName('actor').length) { type = 'actor'; }
-      else if(doc.getElementsByName('actress').length) { type = 'actress'; }
+      //console.log('Finding seen_filmography, other than the film with tt: ' + excepttt);
+      var type = '', filmo;
+      var filmos = doc.getElementsByClassName('filmo');
+      for(var fi=0; fi<filmos.length; ++fi) {
+        //console.log(filmos[fi]);
+        var t = filmos[fi].firstElementChild.firstElementChild.getAttribute('name');
+        if(t==='actor' || t==='actress') { type = t; filmo = filmos[fi];}
+      }
       if(!type) { return; }
 
       var ret = document.createElement('div');
       var ul = document.createElement('ul');
-      var movies = doc.getElementsByName(type)[0].parentNode.parentNode.lastChild.childNodes;
+      var movies = filmo.lastChild.childNodes;
       for(var i=0; i<movies.length; ++i) {
         var as = movies[i].getElementsByTagName('a');
         var someseen = false;
@@ -97,6 +117,34 @@ if(!this.imdbwhis && window===window.top) {
       }
       ret.appendChild(ul);
       return ret;
+    }
+
+    //Add a link that will get the seen_filmography for everyone in the cast
+    function add_getwhis_link() {
+      var casts = document.getElementsByClassName('cast');
+      if(casts.length) {
+        assert(casts.length===1, 'Just one node with class "cast"');
+        var tt = get_tt(document.location.pathname);
+        if(tt) {
+          var getwhis = document.createElement('a');
+          getwhis.href = 'see://where-you-have-seen-each-actor-in-this-cast';
+          getwhis.innerHTML = '<small>Where have I seen these actors?</small>';
+          var onclick = function(event) {
+            getwhis.innerHTML = '<small>Getting...</small>'; event.stopPropagation(); event.preventDefault();
+            fiddle_castpage(tt, getwhis);
+          }
+          getwhis.addEventListener('click', onclick, false);
+          assert(casts[0].tagName === "TABLE");
+          for(var where=casts[0]; where != document; where=where.parentNode) {
+            //console.log(where);
+            if(where.previousElementSibling === null) { continue; }
+            if(where.previousElementSibling.children[0].innerHTML.match("Cast")) {
+              where.previousElementSibling.appendChild(getwhis);
+              break;
+            }
+          }
+        }
+      }
     }
 
     //Add a link that says "[+]" and will add the movie to the list
@@ -131,7 +179,7 @@ if(!this.imdbwhis && window===window.top) {
         event.preventDefault();
         my_movies[tt] = undefined;
         gm_setValue('my_movies', JSON.stringify(my_movies));
-        link.innerHTML = '[\u2713]';
+        link.innerHTML = '[\u2713]'; //A tick mark
       };
       link.addEventListener('click', onclick, false);
       a.parentNode.insertBefore(link, a.nextSibling);
@@ -173,11 +221,7 @@ if(!this.imdbwhis && window===window.top) {
 
     modify_links();
     modify_title();
-
-    if(document.getElementsByClassName('cast').length) {
-      var tt = get_tt(document.location.pathname);
-      if(tt) { fiddle_castpage(tt); }
-    }
+    add_getwhis_link();
 
     gm_registerMenuCommand('Show seen movies', function() { alert(JSON.stringify(my_movies, null, 1)); }, 'S', 'shift control');
 
