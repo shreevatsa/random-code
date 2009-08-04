@@ -15,21 +15,19 @@
 // Released under the GNU GPL: http://www.gnu.org/copyleft/gpl.html
 //
 /*
-  When you are looking at the cast listing of a movie you haven't
-  seen, you don't care about all its actors; you only care about those
-  who are "known" to you, and yet not familiar: actors you have seen
-  in some other movie. Similarly, when you're looking at an actor's
-  filmography, you don't care about all her movies, you only care
-  about the ones you've seen.
+  When you are looking at the cast listing of a movie, you might want
+  to know which of the actors you have seen in other movies, and in
+  what roles. And when looking at an actor's filmography, you might
+  want your attention drawn to the movies that you've seen.
 
-  This script addresses the above use case, by doing two things:
+  If so, this script helps, by letting you do two things:
 
-  (i) For a cast listing, showing next to each actor other movies
-  you've seen that actor in.
+  (i) On a cast listing, click on "Where have I seen these actors?" to
+  see next to each actor other movies you've seen that actor in.
 
-  (ii) Keeping track of which movies you've seen, by highlighting
-  links to them wherever they occur, and making it easy to add movies
-  to the list (using a [+] link next to any movie you haven't seen).
+  (ii) Keep track of which movies you've seen, by highlighting links
+  to them wherever they occur, and making it easy to add movies to the
+  list (using a [+] link next to any movie you haven't seen).
 
   Screenshots: http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
 
@@ -40,7 +38,7 @@
   about:config preference), not online on IMDB. It's a good idea to
   backup the list occasionally; click on "Show seen movies" in "User
   script commands", hit Ctrl-A, and copy to a file.
-  I plan to make it backup to IMDB's "My movies" in a future revision.
+  I plan to make it save to IMDB's "My movies" in a future revision.
 
   * For each cast listing, it actually visits each actor's page to
   find all his movies. Not only can this be slow if you're on a slow
