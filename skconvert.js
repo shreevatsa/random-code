@@ -1,7 +1,7 @@
 if(!this.SKconvert) {
     //To avoid creating global variables put everything in a "closure"
     this.SKconvert = function () {
-
+        if(typeof(console) === "undefined" || typeof(console.log) === "undefined") var console = { log: function() { } };
         // Make trie, given a table like {'a':'अ', 'A':'आ', 'ai':'ऐ', 'au':'औ' }
         function maketrie(table) {
             var root = {};
