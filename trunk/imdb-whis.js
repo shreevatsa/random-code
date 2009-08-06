@@ -85,7 +85,7 @@ if(!this.imdbwhis && window===window.top) {
              function(doc) {
                var sfo = seen_filmography(doc, tt);
                if(sfo) crow.appendChild(sfo);
-               else crow.appendChild(document.createTextNode('Error: probably IMDb decided there were too many requests. Try later.'));
+               else crow.appendChild(doc);
                //crow.appendChild(doc); //This should never happen
                linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
                if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
@@ -102,7 +102,12 @@ if(!this.imdbwhis && window===window.top) {
         var t = filmos[fi].firstElementChild.firstElementChild.getAttribute('name');
         if(t==='actor' || t==='actress') { type = t; filmo = filmos[fi];}
       }
-      if(!type) { return; }
+      if(!type) {
+        var error = doc.getElementsByTagName('title');
+        if(error && error.length===1 && error[0].innerHTML.toLowerCase() === 'error')
+          return document.createTextNode('Error: Probably IMDb decided there were too many requests. Try later.');
+        return;
+      }
 
       var ret = document.createElement('div');
       var ul = document.createElement('ul');
