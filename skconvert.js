@@ -223,6 +223,7 @@ if(!this.SKconvert) {
             return s;
         }
 
+        /*
         function unfixmatras(s, lang) { //Replace कि            with                 क्इ
             console.log("Vowels of the matras of " + lang + " are :"); console.log(unmatras[lang]);
             function isConsonant(t) { return (alphabets[lang].indexOf(t)>-1) && !(t in matras[lang]); }
@@ -240,6 +241,44 @@ if(!this.SKconvert) {
             }
 
             console.log("After unfixing, returning " + t);
+            return t;
+        }
+        */
+
+        function unfixmatras(s) {
+            var vowel = {
+                'ा' : 'आ',
+                'ि' : 'इ',
+                'ी' : 'ई',
+                'ु' : 'उ',
+                'ू' : 'ऊ',
+                'ृ' : 'ऋ',
+                'ॄ' : 'ॠ',
+                'ॢ' : 'ऌ',
+                'ॣ' : 'ॡ',
+                'े' : 'ए',
+                'ै' : 'ऐ',
+                'ो' : 'ओ',
+                'ौ' : 'औ'
+            };
+            var consonants = {'क':'', 'ख':'', 'ग':'', 'घ':'', 'ङ':'',
+                              'च':'', 'छ':'', 'ज':'', 'झ':'', 'ञ':'',
+                              'ट':'', 'ठ':'', 'ड':'', 'ढ':'', 'ण':'',
+                              'त':'', 'थ':'', 'द':'', 'ध':'', 'न':'',
+                              'प':'', 'फ':'', 'ब':'', 'भ':'', 'म':'',
+                              'य':'', 'र':'', 'ल':'', 'व':'',
+                              'श':'', 'ष':'', 'स':'', 'ह':''};
+
+            for(var i in vowel) {
+                s = s.replace(RegExp(i, "g"), virama+vowel[i]);
+            }
+            var t = '';
+            for(var i=0; i<s.length; ++i) {
+                t += s[i];
+                if((s[i] in consonants) && s[i+1]!==virama) { //Even if it is undefined!
+                    t += virama + 'अ';
+                }
+            }
             return t;
         }
 
