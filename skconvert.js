@@ -224,7 +224,7 @@ if(!this.SKconvert) {
         }
 
         function unfixmatras(s, lang) { //Replace कि            with                 क्इ
-            console.log("Vowels of the matras of " + lang + " are :"); console.log(unmatras[lang]); 
+            console.log("Vowels of the matras of " + lang + " are :"); console.log(unmatras[lang]);
             function isConsonant(t) { return (alphabets[lang].indexOf(t)>-1) && !(t in matras[lang]); }
             //First, replace explicit matras with VIRAMA+VOWEL
             for(var m in unmatras[lang]) {

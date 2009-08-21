@@ -76,7 +76,9 @@ if(!this.gbcitation && window === window.top) {
         var value = '';
         for(var vi=0; vi<values.length; ++vi) {
           if(vi%2 === 1) {
-            assert(values[vi].nodeValue === ', ', "even ones are commas");
+            var vinv = values[vi].nodeValue;
+            if(vinv === null) continue;
+            assert(vinv === ', ', "I expected even ones to be commas, but " + vinv + " is not.");
             continue;
           }
           value += (value==='' ? '' : ',') + values[vi].innerHTML;
