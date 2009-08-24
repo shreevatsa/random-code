@@ -9,12 +9,16 @@
 // @include       http://imdb.com/name/*
 // @include       http://*.imdb.com/name/*
 // @include	  http://www.imdb.com/chart/*
+// @include       http://www.imdb.com/*
+// @include       http://*.imdb.com/*
 // ==/UserScript==
 //
 // Copyright (c) 2008, Shreevatsa R.
 // Released under the GNU GPL: http://www.gnu.org/copyleft/gpl.html
 //
 /*
+  <strong>Note</strong>: The latest version seems quite a bit faster, but it's *too* fast: IMDb complains of too many requests. You might want to install an older version, or wait for me (or tell me how) to fix this.
+
   When you are looking at the cast listing of a movie, you might want
   to know which of the actors you have seen in other movies, and in
   what roles. And when looking at an actor's filmography, you might
@@ -50,6 +54,7 @@
   2008-08-26 Removed cruft, switched to external "wget" library
   2008-08-28 Turns out script didn't actually work for new users (sorry!), but 47 people installed it anyway :D Fixed now.
   2009-08-02 What I should have done in the first version: make it fetch information only when asked.
+  2009-08-24 Show only one line from the movie listing, not all the 'aka's
 */
 
 if(!this.imdbwhis && window===window.top) {
@@ -95,7 +100,7 @@ if(!this.imdbwhis && window===window.top) {
     //Return a div with a list of seen films in the actor's filmography
     function seen_filmography(doc, excepttt) {
       //console.log('Finding seen_filmography, other than the film with tt: ' + excepttt);
-      var type = '', filmo;
+      var type = '', filmo; //filmo = the list named 'actor' or 'actress'
       var filmos = doc.getElementsByClassName('filmo');
       for(var fi=0; fi<filmos.length; ++fi) {
         //console.log(filmos[fi]);
@@ -103,10 +108,15 @@ if(!this.imdbwhis && window===window.top) {
         if(t==='actor' || t==='actress') { type = t; filmo = filmos[fi];}
       }
       if(!type) {
+        /*
         var error = doc.getElementsByTagName('title');
-        if(error && error.length===1 && error[0].innerHTML.toLowerCase() === 'error')
+        if(error && error.length===1 && error[0].innerHTML.toLowerCase() === 'error') {
+        */
           return document.createTextNode('Error: Probably IMDb decided there were too many requests. Try later.');
+        /*
+        }
         return;
+        */
       }
 
       var ret = document.createElement('div');
@@ -116,7 +126,10 @@ if(!this.imdbwhis && window===window.top) {
         var as = movies[i].getElementsByTagName('a');
         var someseen = false;
         for(var j=0; j<as.length; ++j) { var tt=get_tt(as[j].pathname); if(tt!==excepttt && seen_movie(tt)){someseen = true;} }
-        if(someseen) { ul.appendChild(movies[i].cloneNode(true)); }
+        if(someseen) {
+          movies[i].innerHTML = movies[i].innerHTML.replace(/<br>.*/,'');
+          ul.appendChild(movies[i].cloneNode(true));
+        }
       }
       ret.appendChild(ul);
       return ret;
