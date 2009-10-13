@@ -55,6 +55,7 @@
   2008-08-28 Turns out script didn't actually work; fixed now
   2009-08-02 Make it fetch information only when asked
   2009-08-24 Show only one line from the movie listing, not all the 'aka's
+  2009-10-13 Send one request per second, allow fetching just one actor
 */
 
 "use strict";
@@ -70,6 +71,14 @@ if(window===window.top) {
     //var do_doc = wget;
     function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/true); }
 
+    var things_to_do = [];
+    function pop_queue(func) {
+      if(things_to_do.length>0) {
+        things_to_do.shift()();
+      }
+      window.setTimeout(pop_queue, 1000);
+    }
+    pop_queue(); //Get it going
 
     var my_movies = gm_getValue('my_movies');
     if(my_movies === undefined) { my_movies='{}'; }
@@ -104,7 +113,6 @@ if(window===window.top) {
 
     //Return a div with a list of seen films in the actor's filmography
     function seen_filmography(doc, excepttt) {
-      //console.log('Finding seen_filmography, other than the film with tt: ' + excepttt);
       var type = '', filmo; //filmo = the list named 'actor' or 'actress'
       var filmos = doc.getElementsByClassName('filmo');
       for(var fi=0; fi<filmos.length; ++fi) {
@@ -114,26 +122,26 @@ if(window===window.top) {
       if(!type) {
           return document.createTextNode('Error: Probably IMDb decided there were too many requests. Try later.');
       }
-
       return seen_filmography_div(filmo, excepttt);
     }
 
-    //For a cast row, get actor name, and change accordingly
+    //[When asked] For a cast row, get actor name, and add filmography accordingly
     function fiddle_castrow(crow, tt, linknode, name) {
       if(!(crow.getElementsByClassName && crow.getElementsByClassName('nm').length)) { return; }
       var a = crow.getElementsByClassName('nm')[0].getElementsByTagName('a')[0];
-      do_doc('http://www.imdb.com' + a.pathname.substr(0,15) + '/',
-             function(doc) {
-               var sfo = seen_filmography(doc, tt);
-               if(sfo) { crow.appendChild(sfo); }
-               else { crow.appendChild(doc); }
-               //crow.appendChild(doc); //This should never happen
-               linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
-               if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
-             });
+      things_to_do.push(function() {
+          do_doc('http://www.imdb.com' + a.pathname.substr(0,15) + '/', //The page for that actor
+                 function(doc) {
+                   var sfo = seen_filmography(doc, tt);
+                   if(sfo) { crow.appendChild(sfo); }
+                   else    { crow.appendChild(doc); } //This should never happen
+                   linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
+                   if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
+                 });
+            });
     }
 
-    //Take a page with a "cast" in it, and work on each cast row.
+    //[When asked] Take a page with a "cast" in it, and work on each cast row.
     function fiddle_castpage(tt, linknode) {
       var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].children || [];
       for(var i=0; i<castrows.length; ++i) {
@@ -146,32 +154,47 @@ if(window===window.top) {
       }
     }
 
-
     //Add a link that will get the seen_filmography for everyone in the cast
     function add_getwhis_link() {
       var casts = document.getElementsByClassName('cast');
-      if(casts.length) {
-        assert(casts.length===1, 'Just one node with class "cast"');
-        var tt = get_tt(document.location.pathname);
-        if(tt) {
-          var getwhis = document.createElement('a');
-          getwhis.href = 'see://where-you-have-seen-each-actor-in-this-cast';
-          getwhis.innerHTML = '<small>Where have I seen these actors?</small>';
-          var onclick = function(event) {
-            getwhis.innerHTML = '<small>Getting...</small>'; event.stopPropagation(); event.preventDefault();
-            fiddle_castpage(tt, getwhis);
-          };
-          getwhis.addEventListener('click', onclick, false);
-          assert(casts[0].tagName === "TABLE");
-          for(var where=casts[0]; where !== document; where=where.parentNode) {
-            //console.log(where);
-            if(where.previousElementSibling === null) { continue; }
-            if(where.previousElementSibling.children[0].innerHTML.match("Cast")) {
-              where.previousElementSibling.appendChild(getwhis);
-              break;
-            }
-          }
+      if(casts.length===0) { return; }
+      assert(casts.length===1, 'Just one node with class "cast"');
+      var tt = get_tt(document.location.pathname);
+      if(!tt) { return; }
+
+      var getwhis = document.createElement('a');
+      getwhis.href = 'see://where-you-have-seen-each-actor-in-this-cast';
+      getwhis.innerHTML = '<small>Where have I seen these actors?</small>';
+      var onclick = function(event) {
+        getwhis.innerHTML = '<small>Getting...</small>'; event.stopPropagation(); event.preventDefault();
+        fiddle_castpage(tt, getwhis);
+      };
+      getwhis.addEventListener('click', onclick, false);
+      assert(casts[0].tagName === "TABLE");
+      for(var where=casts[0]; where !== document; where=where.parentNode) {
+        if(where.previousElementSibling === null) { continue; }
+        if(where.previousElementSibling.children[0].innerHTML.match("Cast")) {
+          where.previousElementSibling.appendChild(getwhis);
+          break;
         }
+      }
+      //Make all the "..." into links
+      var castrows = casts[0].getElementsByTagName('tbody')[0].children || [];
+      for(var i=0; i<castrows.length; ++i) {
+        var crow = castrows[i], name, ddd, newddd;
+        try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
+        try { ddd = crow.getElementsByClassName('ddd')[0].childNodes[0]; } catch(errr) { continue; }
+        newddd = document.createElement('a');
+        newddd.innerHTML = " ... ";
+        newddd.href = "show://just-this-actor";
+        newddd.addEventListener('click', (function() {
+              var ccrow = crow, ctt = tt, clink=getwhis, cname=name;
+              return function(event) {
+                event.stopPropagation(); event.preventDefault();
+                fiddle_castrow(ccrow, ctt, clink, cname);
+              };
+            }()), false);
+        ddd.parentNode.replaceChild(newddd, ddd);
       }
     }
 
