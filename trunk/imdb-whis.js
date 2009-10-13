@@ -17,8 +17,6 @@
 // Released under the GNU GPL: http://www.gnu.org/copyleft/gpl.html
 //
 /*
-  <strong>Note</strong>: The latest version seems quite a bit faster, but it's *too* fast: IMDb complains of too many requests. You might want to install an older version, or wait for me (or tell me how) to fix this.
-
   When you are looking at the cast listing of a movie, you might want
   to know which of the actors you have seen in other movies, and in
   what roles. And when looking at an actor's filmography, you might
