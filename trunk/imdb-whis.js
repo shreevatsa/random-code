@@ -76,17 +76,46 @@ if(window===window.top) {
     my_movies =  JSON.parse(my_movies);
 
 
-    //Take a page with a "cast" in it, and work on each cast row.
-    function fiddle_castpage(tt, linknode) {
-      var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].children || [];
-      for(var i=0; i<castrows.length; ++i) {
-        var crow = castrows[i];
-        var name = '';
-        try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
-        linknode.innerHTML = linknode.innerHTML.replace('</small>', '['+name+']' + '</small>');
-        fiddle_castrow(crow, tt, linknode, name);
-        //What does this have to do with Cuba, anyway?
+    function seen_movie(tt) { return my_movies[tt]!==undefined; }
+
+    //get_tt("http://www.imdb.com/title/tt0111161/fullcredits#cast") = "0111161"
+    function get_tt(s) {
+      var matches = s.match(/tt(\d+)\/$/) || s.match(/tt(\d+)\/fullcredits/);
+      if(matches && matches.length > 1) { return matches[1]; }
+    }
+
+    //Return a div with a list of seen films, given an actor's filmography
+    function seen_filmography_div(filmo, excepttt) {
+      var ret = document.createElement('div');
+      var ul = document.createElement('ul');
+      var movies = filmo.lastChild.childNodes;
+      for(var i=0; i<movies.length; ++i) {
+        var as = movies[i].getElementsByTagName('a');
+        var someseen = false;
+        for(var j=0; j<as.length; ++j) { var tt=get_tt(as[j].pathname); if(tt!==excepttt && seen_movie(tt)){someseen = true;} }
+        if(someseen) {
+          movies[i].innerHTML = movies[i].innerHTML.replace(/<br>.*/,'');
+          ul.appendChild(movies[i].cloneNode(true));
+        }
       }
+      ret.appendChild(ul);
+      return ret;
+    }
+
+    //Return a div with a list of seen films in the actor's filmography
+    function seen_filmography(doc, excepttt) {
+      //console.log('Finding seen_filmography, other than the film with tt: ' + excepttt);
+      var type = '', filmo; //filmo = the list named 'actor' or 'actress'
+      var filmos = doc.getElementsByClassName('filmo');
+      for(var fi=0; fi<filmos.length; ++fi) {
+        var t = filmos[fi].firstElementChild.firstElementChild.getAttribute('name');
+        if(t==='actor' || t==='actress') { type = t; filmo = filmos[fi];}
+      }
+      if(!type) {
+          return document.createTextNode('Error: Probably IMDb decided there were too many requests. Try later.');
+      }
+
+      return seen_filmography_div(filmo, excepttt);
     }
 
     //For a cast row, get actor name, and change accordingly
@@ -104,43 +133,19 @@ if(window===window.top) {
              });
     }
 
-    //Return a div with a list of seen films in the actor's filmography
-    function seen_filmography(doc, excepttt) {
-      //console.log('Finding seen_filmography, other than the film with tt: ' + excepttt);
-      var type = '', filmo; //filmo = the list named 'actor' or 'actress'
-      var filmos = doc.getElementsByClassName('filmo');
-      for(var fi=0; fi<filmos.length; ++fi) {
-        //console.log(filmos[fi]);
-        var t = filmos[fi].firstElementChild.firstElementChild.getAttribute('name');
-        if(t==='actor' || t==='actress') { type = t; filmo = filmos[fi];}
+    //Take a page with a "cast" in it, and work on each cast row.
+    function fiddle_castpage(tt, linknode) {
+      var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].children || [];
+      for(var i=0; i<castrows.length; ++i) {
+        var crow = castrows[i];
+        var name = '';
+        try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
+        linknode.innerHTML = linknode.innerHTML.replace('</small>', '['+name+']' + '</small>');
+        fiddle_castrow(crow, tt, linknode, name);
+        //What does this have to do with Cuba, anyway?
       }
-      if(!type) {
-        /*
-        var error = doc.getElementsByTagName('title');
-        if(error && error.length===1 && error[0].innerHTML.toLowerCase() === 'error') {
-        */
-          return document.createTextNode('Error: Probably IMDb decided there were too many requests. Try later.');
-        /*
-        }
-        return;
-        */
-      }
-
-      var ret = document.createElement('div');
-      var ul = document.createElement('ul');
-      var movies = filmo.lastChild.childNodes;
-      for(var i=0; i<movies.length; ++i) {
-        var as = movies[i].getElementsByTagName('a');
-        var someseen = false;
-        for(var j=0; j<as.length; ++j) { var tt=get_tt(as[j].pathname); if(tt!==excepttt && seen_movie(tt)){someseen = true;} }
-        if(someseen) {
-          movies[i].innerHTML = movies[i].innerHTML.replace(/<br>.*/,'');
-          ul.appendChild(movies[i].cloneNode(true));
-        }
-      }
-      ret.appendChild(ul);
-      return ret;
     }
+
 
     //Add a link that will get the seen_filmography for everyone in the cast
     function add_getwhis_link() {
@@ -168,6 +173,11 @@ if(window===window.top) {
           }
         }
       }
+    }
+
+    function highlight(a) {
+      a.style.fontWeight = 'bold';
+      a.style.color = 'green';
     }
 
     //Add a link that says "[+]" and will add the movie to the list
@@ -208,16 +218,6 @@ if(window===window.top) {
       a.parentNode.insertBefore(link, a.nextSibling);
     }
 
-    function highlight(a) {
-      a.style.fontWeight = 'bold';
-      a.style.color = 'green';
-    }
-
-    //Parse tt[num]/ from a string
-    function get_tt(s) {
-      var matches = s.match(/tt(\d+)\/$/) || s.match(/tt(\d+)\/fullcredits/);
-      if(matches && matches.length > 1) { return matches[1]; }
-    }
 
     //Highlighting "My movies" and making it easy to add them
     function modify_links() {
@@ -238,7 +238,6 @@ if(window===window.top) {
       if(title) { highlight(title); }
     }
 
-    function seen_movie(tt) { return my_movies[tt]!==undefined; }
 
     // ---------- "main" ----------
 
