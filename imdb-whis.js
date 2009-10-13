@@ -66,19 +66,21 @@ if(window===window.top) {
     //JSLint thinks function names starting with uppercase are constructors
     var gm_log=GM_log, gm_setValue=GM_setValue, gm_getValue=GM_getValue;
     var gm_registerMenuCommand=GM_registerMenuCommand, gm_xmlhttpRequest=GM_xmlhttpRequest;
-    var my_movies, i;
     function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
     //var do_doc = wget;
     function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/true); }
-    my_movies = gm_getValue('my_movies');
+
+
+    var my_movies = gm_getValue('my_movies');
     if(my_movies === undefined) { my_movies='{}'; }
     my_movies =  JSON.parse(my_movies);
+
 
     //Take a page with a "cast" in it, and work on each cast row.
     function fiddle_castpage(tt, linknode) {
       var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].children || [];
-      for(i=0; i<castrows.length; ++i) {
-        var crow = castrows[i]; //console.log(crow);
+      for(var i=0; i<castrows.length; ++i) {
+        var crow = castrows[i];
         var name = '';
         try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
         linknode.innerHTML = linknode.innerHTML.replace('</small>', '['+name+']' + '</small>');
