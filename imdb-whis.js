@@ -52,27 +52,32 @@
   Changelog:
   2008-08-25 First upload
   2008-08-26 Removed cruft, switched to external "wget" library
-  2008-08-28 Turns out script didn't actually work for new users (sorry!), but 47 people installed it anyway :D Fixed now.
-  2009-08-02 What I should have done in the first version: make it fetch information only when asked.
+  2008-08-28 Turns out script didn't actually work; fixed now
+  2009-08-02 Make it fetch information only when asked
   2009-08-24 Show only one line from the movie listing, not all the 'aka's
 */
 
-if(!this.imdbwhis && window===window.top) {
-  imdbwhis = function () {
+"use strict";
+/*jslint browser: true, onevar: false, white:false, plusplus: false */
+/*global window, document, wget, GM_setValue, GM_getValue, GM_registerMenuCommand, GM_xmlhttpRequest, GM_log */
+
+if(window===window.top) {
+  (function () {
     //JSLint thinks function names starting with uppercase are constructors
     var gm_log=GM_log, gm_setValue=GM_setValue, gm_getValue=GM_getValue;
     var gm_registerMenuCommand=GM_registerMenuCommand, gm_xmlhttpRequest=GM_xmlhttpRequest;
+    var my_movies, i;
     function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
     //var do_doc = wget;
     function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/true); }
-    var my_movies = gm_getValue('my_movies');
-    if(my_movies == undefined) my_movies='{}';
+    my_movies = gm_getValue('my_movies');
+    if(my_movies === undefined) { my_movies='{}'; }
     my_movies =  JSON.parse(my_movies);
 
     //Take a page with a "cast" in it, and work on each cast row.
     function fiddle_castpage(tt, linknode) {
       var castrows = document.getElementsByClassName('cast')[0].getElementsByTagName('tbody')[0].children || [];
-      for(var i=0; i<castrows.length; ++i) {
+      for(i=0; i<castrows.length; ++i) {
         var crow = castrows[i]; //console.log(crow);
         var name = '';
         try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
@@ -89,8 +94,8 @@ if(!this.imdbwhis && window===window.top) {
       do_doc('http://www.imdb.com' + a.pathname.substr(0,15) + '/',
              function(doc) {
                var sfo = seen_filmography(doc, tt);
-               if(sfo) crow.appendChild(sfo);
-               else crow.appendChild(doc);
+               if(sfo) { crow.appendChild(sfo); }
+               else { crow.appendChild(doc); }
                //crow.appendChild(doc); //This should never happen
                linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
                if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
@@ -148,10 +153,10 @@ if(!this.imdbwhis && window===window.top) {
           var onclick = function(event) {
             getwhis.innerHTML = '<small>Getting...</small>'; event.stopPropagation(); event.preventDefault();
             fiddle_castpage(tt, getwhis);
-          }
+          };
           getwhis.addEventListener('click', onclick, false);
           assert(casts[0].tagName === "TABLE");
-          for(var where=casts[0]; where != document; where=where.parentNode) {
+          for(var where=casts[0]; where !== document; where=where.parentNode) {
             //console.log(where);
             if(where.previousElementSibling === null) { continue; }
             if(where.previousElementSibling.children[0].innerHTML.match("Cast")) {
@@ -241,5 +246,5 @@ if(!this.imdbwhis && window===window.top) {
 
     gm_registerMenuCommand('Show seen movies', function() { alert(JSON.stringify(my_movies, null, 1)); }, 'S', 'shift control');
 
-  }();
+  }());
  }
