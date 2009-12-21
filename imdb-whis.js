@@ -2,7 +2,7 @@
 // @name          IMDB "Where Have I Seen" tool
 // @description   Shows you what roles someone has had in movies you've seen
 // @namespace     http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
-// @require       http://www.json.org/json2.js
+// @require       http://web.mit.edu/vatsa/www/json2.js
 // @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
 // @include       http://imdb.com/title/*
 // @include       http://*.imdb.com/title/*
@@ -17,6 +17,8 @@
 // Released under the GNU GPL: http://www.gnu.org/copyleft/gpl.html
 //
 /*
+  Requires Firefox 3.5 or later.
+
   When you are looking at the cast listing of a movie, you might want
   to know which of the actors you have seen in other movies, and in
   what roles. And when looking at an actor's filmography, you might
@@ -66,7 +68,6 @@ if(window===window.top) {
     var gm_log=GM_log, gm_setValue=GM_setValue, gm_getValue=GM_getValue;
     var gm_registerMenuCommand=GM_registerMenuCommand, gm_xmlhttpRequest=GM_xmlhttpRequest;
     function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
-    //var do_doc = wget;
     function do_doc(url, func) { wget(url, func, /*runGM=*/false, /*div=*/true); }
 
     var things_to_do = [];
@@ -99,7 +100,10 @@ if(window===window.top) {
       for(var i=0; i<movies.length; ++i) {
         var as = movies[i].getElementsByTagName('a');
         var someseen = false;
-        for(var j=0; j<as.length; ++j) { var tt=get_tt(as[j].pathname); if(tt!==excepttt && seen_movie(tt)){someseen = true;} }
+        for(var j=0; j<as.length; ++j) {
+          var tt=get_tt(as[j].pathname);
+          if(tt && tt!==excepttt && seen_movie(tt)) { someseen = true; }
+        }
         if(someseen) {
           movies[i].innerHTML = movies[i].innerHTML.replace(/<br>.*/,'');
           ul.appendChild(movies[i].cloneNode(true));
