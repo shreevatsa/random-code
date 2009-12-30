@@ -22,9 +22,9 @@
   1. Keep track of movies you've seen, by clicking on [+] next to them.
      They are highlighted wherever links to them occur on IMDb.
 
-  2. When looking at a cast listing, click "..." next to an actor to see
-     which other movies you've seen that actor in. Click "Where have I
-     seen these actors?" to see this for all actors.
+  2. When looking at a cast listing, click "..." next to an actor
+     to see which other movies you've seen that actor in.  Click
+     on "Where have I seen these actors?" to see this for all.
 
   Screenshots: http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
 
