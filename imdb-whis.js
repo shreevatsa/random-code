@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name          IMDB "Where Have I Seen" tool
-// @description   Shows you what roles someone has had in movies you've seen
+// @description   Shows you what roles actors have had in movies you've seen
 // @namespace     http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
 // @require       http://web.mit.edu/vatsa/www/json2.js
 // @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
@@ -19,19 +19,12 @@
 /*
   Requires Firefox 3.5 or later.
 
-  When you are looking at the cast listing of a movie, you might want
-  to know which of the actors you have seen in other movies, and in
-  what roles. And when looking at an actor's filmography, you might
-  want your attention drawn to the movies that you've seen.
+  1. Keep track of movies you've seen, by clicking on [+] next to them.
+     They are highlighted wherever links to them occur on IMDb.
 
-  If so, this script helps, by letting you do two things:
-
-  (i) On a cast listing, click on "Where have I seen these actors?" to
-  see next to each actor other movies you've seen that actor in.
-
-  (ii) Keep track of which movies you've seen, by highlighting links
-  to them wherever they occur, and making it easy to add movies to the
-  list (using a [+] link next to any movie you haven't seen).
+  2. When looking at a cast listing, click "..." next to an actor to see
+     which other movies you've seen that actor in. Click "Where have I
+     seen these actors?" to see this for all actors.
 
   Screenshots: http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
 
@@ -72,9 +65,7 @@ if(window===window.top) {
 
     var things_to_do = [];
     function pop_queue(func) {
-      if(things_to_do.length>0) {
-        things_to_do.shift()();
-      }
+      if(things_to_do.length>0) { things_to_do.shift()(); }
       window.setTimeout(pop_queue, 1000);
     }
     pop_queue(); //Get it going
@@ -109,7 +100,9 @@ if(window===window.top) {
           ul.appendChild(movies[i].cloneNode(true));
         }
       }
+      ret.appendChild(document.createElement('p'));
       ret.appendChild(ul);
+      ret.appendChild(document.createElement('p'));
       return ret;
     }
 
@@ -204,6 +197,10 @@ if(window===window.top) {
       a.style.fontWeight = 'bold';
       a.style.color = 'green';
     }
+    function unhighlight(a) {
+      a.style.fontWeight = '';
+      a.style.color = '';
+    }
 
     //Add a link that says "[+]" and will add the movie to the list
     function add_addmovie_link(a, tt) {
@@ -219,8 +216,10 @@ if(window===window.top) {
             //The best way seems to be to get it from the photo! (Other ways will include the year, and fail on episodes.)
             my_movies[tt] = doc.getElementsByClassName('photo')[0].childNodes[1].title;
             gm_setValue('my_movies', JSON.stringify(my_movies));
-            link.innerHTML = '[\u2713]';
+            //link.innerHTML = '[\u2713]';
+            link.innerHTML = '';
             highlight(a);
+            add_removemovie_link(a, tt);
           });
       };
       link.addEventListener('click', onclick, false);
@@ -237,7 +236,10 @@ if(window===window.top) {
         event.preventDefault();
         my_movies[tt] = undefined;
         gm_setValue('my_movies', JSON.stringify(my_movies));
-        link.innerHTML = '[\u2713]'; //A tick mark
+        //link.innerHTML = '[\u2713]'; //A tick mark
+        link.innerHTML = '';
+        unhighlight(a);
+        add_addmovie_link(a, tt);
       };
       link.addEventListener('click', onclick, false);
       a.parentNode.insertBefore(link, a.nextSibling);
