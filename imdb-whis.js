@@ -2,6 +2,7 @@
 // @name          IMDB "Where Have I Seen" tool
 // @description   Shows you what roles actors have had in movies you've seen
 // @namespace     http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
+// @version       1.4
 // @require       http://web.mit.edu/vatsa/www/json2.js
 // @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
 // @include       http://imdb.com/title/*
@@ -43,12 +44,25 @@
   servers. Use with discretion.
 
   Changelog:
-  2008-08-25 First upload
-  2008-08-26 Removed cruft, switched to external "wget" library
-  2008-08-28 Turns out script didn't actually work; fixed now
-  2009-08-02 Make it fetch information only when asked
-  2009-08-24 Show only one line from the movie listing, not all the 'aka's
-  2009-10-13 Send one request per second, allow fetching just one actor
+
+  2009-12-30 v1.4    
+
+  2009-12-21 v1.3    Switch to "own" JSON @require library, mention Firefox 3.5
+
+  2009-10-13 v1.2    Send one request per second, allow fetching just one actor
+
+  2009-08-24 v1.1.1  Change @include to work on all of IMDb
+
+  2009-08-24 v1.1    Show only one line per movie, not all the 'aka's.
+
+  2009-08-02 v1.0    Make it fetch information only when asked.
+
+  2008-08-28 v0.6    Script didn't work for new users; fixed now
+
+  2008-08-26 v0.2    Removed cruft, switched to external "wget" library
+
+  2008-08-25 v0.1    First upload
+
 */
 
 "use strict";
