@@ -27,25 +27,28 @@
      to see which other movies you've seen that actor in.  Click
      on "Where have I seen these actors?" to see this for all.
 
-  Screenshots: http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
+  If this doesn't work, use the Userscripts.org discussion at
+  http://userscripts.org/scripts/discuss/32442, or leave a comment at
+  http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
 
   Notes
   =====
 
   * This script keeps track of the seen movies in its own table (an
-  about:config preference), not online on IMDB. It's a good idea to
-  backup the list occasionally; click on "Show seen movies" in "User
-  script commands", hit Ctrl-A, and copy to a file.
-  I plan to make it save to IMDB's "My movies" in a future revision.
+  about:config preference), not online on IMDb. It's a good idea to
+  backup the list occasionally: Click on "Show seen movies" in "User
+  script commands", hit Ctrl-A, Ctrl-C, Enter/Return, and copy text.
+  If you know how to make it save to IMDB's "My movies" or somewhere
+  online, any code contributed will be appreciated.
 
   * For each cast listing, it actually visits each actor's page to
-  find all his movies. Not only can this be slow if you're on a slow
-  connection, it might also be considered too much strain on IMDb's
-  servers. Use with discretion.
+  find all his/her movies. Not only can this be slow if you're on a
+  slow connection, it might also be considered too much strain on
+  IMDb's servers. Use with discretion.
 
   Changelog:
 
-  2009-12-30 v1.4    
+  2009-12-30 v1.4    Update description, newlines in whis, improve remove-after-add
 
   2009-12-21 v1.3    Switch to "own" JSON @require library, mention Firefox 3.5
 
