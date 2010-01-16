@@ -3,7 +3,8 @@
 // @description   Automatically scrolls page so as to end by a specified time
 // @namespace     
 // @version       0.1
-// @require       http://web.mit.edu/vatsa/www/json2.js
+// @require       http://web.mit.edu/vatsa/www/unsorted/jquery-1.3.js
+// @require       http://web.mit.edu/vatsa/www/unsorted/timeentry/jquery.timeentry.js
 // @include       *
 // ==/UserScript==
 //
@@ -33,7 +34,7 @@
 
 "use strict";
 /*jslint browser: true, onevar: false, white:false, plusplus: false, undef: true, eqeqeq: true*/
-/*global window, document, alert, GM_registerMenuCommand, GM_log */
+/*global window, document, alert, GM_registerMenuCommand, GM_log, $ */
 
 if(window===window.top) {
   (function () {
@@ -60,11 +61,25 @@ if(window===window.top) {
                            function() {
                              var bx=window.scrollX;
                              var by=window.scrollY;
-                             endTime = 60000 + curTime();
+                             endTime = 1000*60*60*2 + curTime();
                              gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
                              scrollSlightly(bx, by);
                            },
                            'b', 'control alt');
+
+    /*
+    var d = document.createElement('div');
+    var i = document.createElement('input'); i.type='text'; i.id='defaultEntry';
+    d.appendChild(i);
+    document.body.appendChild(d);
+    d.id = 'did';
+    d.style.position = "fixed";
+    d.style.right = "0px";
+    d.style.top = "0px";
+
+    $(function () { $('#defaultEntry').timeEntry({spinnerImage: 'http://keith-wood.name/img/spinnerDefault.png'}); });
+    */
+    //$('#defaultEntry').datepicker('destroy').datepicker();
 
   }());
  }
