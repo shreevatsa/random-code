@@ -3,8 +3,8 @@
 // @description   Automatically scrolls page so as to end by a specified time
 // @namespace     
 // @version       0.1
-// @require       http://web.mit.edu/vatsa/www/unsorted/jquery-1.3.js
-// @require       http://web.mit.edu/vatsa/www/unsorted/timeentry/jquery.timeentry.js
+// @resource       jQuery               http://web.mit.edu/vatsa/www/unsorted/jquery-1.3.js
+// @resource       jQueryTimeEntry      http://web.mit.edu/vatsa/www/unsorted/timeentry/jquery.timeentry.js
 // @include       *
 // ==/UserScript==
 //
@@ -37,6 +37,21 @@
 /*global window, document, alert, GM_registerMenuCommand, GM_log, $ */
 
 if(window===window.top) {
+
+  (function() {
+    var head = document.getElementsByTagName('head')[0];
+
+    var script = document.createElement('script');
+    script.type = 'text/javascript';
+
+    var jQuery = GM_getResourceText('jQuery');
+    var jQueryTimeEntry = GM_getResourceText('jQueryTimeEntry');
+
+    script.innerHTML = jQuery + jQueryTimeEntry;
+    head.appendChild(script);
+
+    $ = unsafeWindow.$;
+
   (function () {
     //JSLint thinks function names starting with uppercase are constructors
     var gm_log=GM_log, gm_registerMenuCommand=GM_registerMenuCommand;
@@ -67,7 +82,6 @@ if(window===window.top) {
                            },
                            'b', 'control alt');
 
-    /*
     var d = document.createElement('div');
     var i = document.createElement('input'); i.type='text'; i.id='defaultEntry';
     d.appendChild(i);
@@ -77,9 +91,28 @@ if(window===window.top) {
     d.style.right = "0px";
     d.style.top = "0px";
 
-    $(function () { $('#defaultEntry').timeEntry({spinnerImage: 'http://keith-wood.name/img/spinnerDefault.png'}); });
-    */
-    //$('#defaultEntry').datepicker('destroy').datepicker();
+    $(document).ready(function() {
+        $(function () {
+            var t = jQuery('#defaultEntry');
+            console.log(t);
+            t.timeEntry({spinnerImage: 'http://keith-wood.name/img/spinnerDefault.png'});
+          });
+
+        //$('#defaultEntry').datepicker('destroy').datepicker();
+      });
 
   }());
+
+    })();
+
  }
+
+/*
+In Firebug:
+
+function curTime() { return (new Date()).getTime(); }
+function scrollSlightly(bx, by) {T = endTime - curTime(); if(T<0) { alert("Done scrolling; you should be done reading!"); return; } var tx = window.scrollX, ty = window.scrollY; var eps = 100; var x = tx + (eps/T)*(bx-tx); var y = ty + (eps/T)*(by-ty); window.scrollTo(x,y); window.setTimeout(scrollSlightly, eps, bx, by);}
+bx = window.scrollX
+by = window.scrollY
+endTime = curTime() + 1000*60*(minutes)
+scrollSlightly(bx,by)
