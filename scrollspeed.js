@@ -3,8 +3,6 @@
 // @description   Automatically scrolls page so as to end by a specified time
 // @namespace     
 // @version       0.1
-// @resource       jQuery               http://web.mit.edu/vatsa/www/unsorted/jquery-1.3.js
-// @resource       jQueryTimeEntry      http://web.mit.edu/vatsa/www/unsorted/timeentry/jquery.timeentry.js
 // @include       *
 // ==/UserScript==
 //
@@ -15,17 +13,18 @@
 
   Usage
   =====
-  Scroll down to the end of the text you want to read,
+  Scroll down to the end of the page/region you want to read,
   and choose "Set_bottom" in the Greasemonkey User Script Commands.
 
-  Now scroll up. The page will scroll down automatically at the proper
-  rate to finish in time. Good luck reading.
+  Now scroll up. The page will scroll automatically at the proper rate
+  to reach the end in the given time. Good luck reading.
 
   Notes
   =====
-  * If the horizontal (x) scroll position of the final state is not
-  the same as the current, it scrolls that as well. This may not be
-  what you want.
+
+  * If the horizontal (x) scroll position of the final state (when you
+  "Set_bottom") is not the same as the current, it scrolls horizontally
+  as well.  This may not be what you want.
 
   Changelog:
 
@@ -37,22 +36,7 @@
 /*global window, document, alert, GM_registerMenuCommand, GM_log, $ */
 
 if(window===window.top) {
-
   (function() {
-    var head = document.getElementsByTagName('head')[0];
-
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-
-    var jQuery = GM_getResourceText('jQuery');
-    var jQueryTimeEntry = GM_getResourceText('jQueryTimeEntry');
-
-    script.innerHTML = jQuery + jQueryTimeEntry;
-    head.appendChild(script);
-
-    $ = unsafeWindow.$;
-
-  (function () {
     //JSLint thinks function names starting with uppercase are constructors
     var gm_log=GM_log, gm_registerMenuCommand=GM_registerMenuCommand;
     function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
@@ -65,45 +49,51 @@ if(window===window.top) {
       T = endTime - curTime();
       if(T<0) { alert("Done scrolling; you should be done reading!"); return; }
       var tx = window.scrollX, ty = window.scrollY;
-      var eps = 100;
+      var eps = 100; //Number of milliseconds
       var x = tx + (eps/T)*(bx-tx);
       var y = ty + (eps/T)*(by-ty);
       window.scrollTo(x,y);
       window.setTimeout(scrollSlightly, eps, bx, by);
     }
 
+    function make_box() {
+      var d = document.createElement('div');
+      //var i = document.createElement('input'); i.type='text'; i.id='defaultEntry'; i.value='120'; d.appendChild(i);
+      d.innerHTML =
+        '<input type="text" id="defaultEntry" value="120" size="8">' +
+        '<input type="submit" value="S" id="scrspsubmit">';
+      document.body.appendChild(d);
+      d.style.position = 'fixed';
+      d.style.right = "0px";
+      d.style.top = "0px";
+      //d.id = 'did';
+
+      function setAndScroll() {
+        gm_log('Clicked: ' + this.value);
+        var bx=window.scrollX;
+        var by=window.scrollY;
+        endTime = 1000*60*120 + curTime();
+        gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
+        scrollSlightly(bx, by);
+      }
+
+      var b = document.getElementById('scrspsubmit');
+      b.addEventListener('click', setAndScroll, true);
+    }
+
     gm_registerMenuCommand('Set_bottom',
                            function() {
-                             var bx=window.scrollX;
-                             var by=window.scrollY;
-                             endTime = 1000*60*60*2 + curTime();
-                             gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
-                             scrollSlightly(bx, by);
+                             gm_log('Making box');
+                             make_box();
+//                              var bx=window.scrollX;
+//                              var by=window.scrollY;
+//                              endTime = 1000*60*120 + curTime();
+//                              gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
+//                              scrollSlightly(bx, by);
                            },
                            'b', 'control alt');
 
-    var d = document.createElement('div');
-    var i = document.createElement('input'); i.type='text'; i.id='defaultEntry';
-    d.appendChild(i);
-    document.body.appendChild(d);
-    d.id = 'did';
-    d.style.position = "fixed";
-    d.style.right = "0px";
-    d.style.top = "0px";
-
-    $(document).ready(function() {
-        $(function () {
-            var t = jQuery('#defaultEntry');
-            console.log(t);
-            t.timeEntry({spinnerImage: 'http://keith-wood.name/img/spinnerDefault.png'});
-          });
-
-        //$('#defaultEntry').datepicker('destroy').datepicker();
-      });
-
-  }());
-
-    })();
+  })();
 
  }
 
@@ -116,3 +106,4 @@ bx = window.scrollX
 by = window.scrollY
 endTime = curTime() + 1000*60*(minutes)
 scrollSlightly(bx,by)
+*/
