@@ -53,6 +53,7 @@ if(window===window.top) {
       var x = tx + (eps/T)*(bx-tx);
       var y = ty + (eps/T)*(by-ty);
       window.scrollTo(x,y);
+      document.getElementById('scrspbutton').value = '' + ((eps/T)*(by-ty)).toFixed(2);
       window.setTimeout(scrollSlightly, eps, bx, by);
     }
 
@@ -60,8 +61,9 @@ if(window===window.top) {
       var d = document.createElement('div');
       //var i = document.createElement('input'); i.type='text'; i.id='defaultEntry'; i.value='120'; d.appendChild(i);
       d.innerHTML =
-        '<input type="text" id="defaultEntry" value="120" size="8">' +
-        '<input type="submit" value="S" id="scrspsubmit">';
+        '<input type="text"  id="scrspminutes" value="120" size="4" style="text-align:right">' +
+        '<input type="submit" id="scrspbutton" value="42">' +
+        '';
       document.body.appendChild(d);
       d.style.position = 'fixed';
       d.style.right = "0px";
@@ -69,16 +71,16 @@ if(window===window.top) {
       //d.id = 'did';
 
       function setAndScroll() {
-        gm_log('Clicked: ' + this.value);
+        var t = document.getElementById('scrspminutes').value;
+        gm_log('Clicked: ' + t);
         var bx=window.scrollX;
         var by=window.scrollY;
-        endTime = 1000*60*120 + curTime();
+        endTime = 1000*60*t + curTime();
         gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
         scrollSlightly(bx, by);
       }
 
-      var b = document.getElementById('scrspsubmit');
-      b.addEventListener('click', setAndScroll, true);
+      document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
     }
 
     gm_registerMenuCommand('Set_bottom',
