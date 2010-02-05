@@ -42,24 +42,29 @@ if(window===window.top) {
     function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
     function curTime() { return (new Date()).getTime(); }
 
-    var T = 60*1000; // 60000 ms = (1 minute) * (60 s/minute) * (1000 ms/s)
     var endTime;
+    var eps = 100; //Number of milliseconds
+
+    var things_to_do = [];
+    function pop_queue(func) {
+      if(things_to_do.length>0) { things_to_do.shift()(); }
+      window.setTimeout(pop_queue, eps);
+    }
+    pop_queue(); //Get it going
 
     function scrollSlightly(bx, by) {
-      T = endTime - curTime();
+      var T = endTime - curTime();
       if(T<0) { alert("Done scrolling; you should be done reading!"); return; }
       var tx = window.scrollX, ty = window.scrollY;
-      var eps = 100; //Number of milliseconds
       var x = tx + (eps/T)*(bx-tx);
       var y = ty + (eps/T)*(by-ty);
       window.scrollTo(x,y);
       document.getElementById('scrspbutton').value = '' + ((eps/T)*(by-ty)).toFixed(2);
-      window.setTimeout(scrollSlightly, eps, bx, by);
+      things_to_do.push(function() { scrollSlightly(bx, by); }); //Let's not setTimeout ourselves
     }
 
     function make_box() {
       var d = document.createElement('div');
-      //var i = document.createElement('input'); i.type='text'; i.id='defaultEntry'; i.value='120'; d.appendChild(i);
       d.innerHTML =
         '<input type="text"  id="scrspminutes" value="120" size="4" style="text-align:right">' +
         '<input type="submit" id="scrspbutton" value="42">' +
@@ -68,7 +73,6 @@ if(window===window.top) {
       d.style.position = 'fixed';
       d.style.right = "0px";
       d.style.top = "0px";
-      //d.id = 'did';
 
       function setAndScroll() {
         var t = document.getElementById('scrspminutes').value;
@@ -77,7 +81,7 @@ if(window===window.top) {
         var by=window.scrollY;
         endTime = 1000*60*t + curTime();
         gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
-        scrollSlightly(bx, by);
+        things_to_do = [ function() { scrollSlightly(bx, by);} ];
       }
 
       document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
@@ -87,11 +91,6 @@ if(window===window.top) {
                            function() {
                              gm_log('Making box');
                              make_box();
-//                              var bx=window.scrollX;
-//                              var by=window.scrollY;
-//                              endTime = 1000*60*120 + curTime();
-//                              gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
-//                              scrollSlightly(bx, by);
                            },
                            'b', 'control alt');
 
