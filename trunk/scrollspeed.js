@@ -39,12 +39,12 @@
   I'm not sure how to fix this. In the meantime, set it to end earlier
   than you need it to.
 
-  * If the horizontal (x) scroll position of the final state (when you
-  "Set_bottom") is not the same as the current, it scrolls horizontally
-  as well.  This is a "feature", but it may not be what you want.
+  * Only the vertical (y) position is scrolled. A previous version
+  scrolled horizontally (x) as well, but I decided this was useless.
 
   Changelog:
 
+  2010-02-06 v0.2    Removed horizontal scroll
   2010-02-06 v0.1    First working version
   2010-01-15 v0.0    First version
 */
@@ -69,31 +69,19 @@ if(window===window.top) {
       window.setTimeout(pop_queue, eps);
     }
 
-    /*
-    function toWidth(w, n) {
-      s = '' + n;
-      while(s.length < w) s = '0' + s;
-      return s;
-    }
-    function printTime(ms) { //Convert milliseconds to hours:minutes:seconds
-      var d = new Date(ms);
-      return d.getUTCHours() + ':' + toWidth(2,d.getUTCMinutes()) + ':' + toWidth(2,d.getUTCSeconds());
-    }
-    */
-
     function scrollSlightly(bx, by) {
       var T = endTime - curTime();
       if(T<0) { alert("Done scrolling; you should be done reading!"); return; }
       var tx = window.scrollX, ty = window.scrollY;
-      var x = Math.ceil(tx + (eps/T)*(bx-tx));
       var y = Math.ceil(ty + (eps/T)*(by-ty) + 0.8); //Attempt to fix the increasing rate
-      window.scrollTo(x,y);
+      window.scrollTo(tx,y);
       document.getElementById('scrspbutton').value = '' + ((eps/T)*(by-ty)).toFixed(2);
       //document.getElementById('scrspminutes').value= printTime(T);
       things_to_do.push(function() { scrollSlightly(bx, by); });
     }
 
     function make_box() {
+      gm_log('Making box');
       var d = document.createElement('div');
       d.innerHTML =
         '<input type="text"  id="scrspminutes" name="minutes" value="120" size="4" style="text-align:right">' +
@@ -117,9 +105,7 @@ if(window===window.top) {
       pop_queue();
     }
 
-    gm_registerMenuCommand('Set_bottom',
-                           make_box,
-                           'b', 'control alt');
+    gm_registerMenuCommand('Set_bottom', make_box, 'b', 'control alt');
 
   })();
 
