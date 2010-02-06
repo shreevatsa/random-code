@@ -28,6 +28,7 @@
 
   Changelog:
 
+  2010-02-06 v0.2    First working version
   2010-01-15 v0.1    First version
 */
 
@@ -40,8 +41,8 @@ if(window===window.top) {
     //JSLint thinks function names starting with uppercase are constructors
     var gm_log=GM_log, gm_registerMenuCommand=GM_registerMenuCommand;
     function assert(cond, str) { if (!cond) { throw new Error('Assertion failed: ' + str); } }
-    function curTime() { return (new Date()).getTime(); }
 
+    function curTime() { return (new Date()).getTime(); }
     var endTime;
     var eps = 100; //Number of milliseconds
 
@@ -50,7 +51,17 @@ if(window===window.top) {
       if(things_to_do.length>0) { things_to_do.shift()(); }
       window.setTimeout(pop_queue, eps);
     }
-    pop_queue(); //Get it going
+    //pop_queue(); //Get it going
+
+    function toWidth(w, n) {
+      s = '' + n;
+      while(s.length < w) s = '0' + s;
+      return s;
+    }
+    function printTime(ms) { //Convert milliseconds to hours:minutes:seconds
+      var d = new Date(ms);
+      return d.getUTCHours() + ':' + toWidth(2,d.getUTCMinutes()) + ':' + toWidth(2,d.getUTCSeconds());
+    }
 
     function scrollSlightly(bx, by) {
       var T = endTime - curTime();
@@ -60,39 +71,38 @@ if(window===window.top) {
       var y = ty + (eps/T)*(by-ty);
       window.scrollTo(x,y);
       document.getElementById('scrspbutton').value = '' + ((eps/T)*(by-ty)).toFixed(2);
+      //document.getElementById('scrspminutes').value= printTime(T);
       things_to_do.push(function() { scrollSlightly(bx, by); }); //Let's not setTimeout ourselves
     }
 
     function make_box() {
-
-      function setAndScroll() {
-        var t = document.getElementById('scrspminutes').value;
-        gm_log('Clicked: ' + t);
-        var bx=window.scrollX;
-        var by=window.scrollY;
-        endTime = 1000*60*t + curTime();
-        gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
-        things_to_do = [ function() { scrollSlightly(bx, by);} ];
-        return false;
-      }
-
       var d = document.createElement('div');
       d.innerHTML =
         '<input type="text"  id="scrspminutes" name="minutes" value="120" size="4" style="text-align:right">' +
-        '<input type="submit" id="scrspbutton" name="bbutton" value="42">' +
+        '<input type="submit" id="scrspbutton" name="bbutton" value="min">' +
         '';
       document.body.appendChild(d);
       d.style.position = 'fixed';
       d.style.right = "0px";
       d.style.top = "0px";
 
+      function setAndScroll() {
+        var t = document.getElementById('scrspminutes').value;
+        var bx=window.scrollX;
+        var by=window.scrollY;
+        endTime = 1000*60*t + curTime();
+        gm_log('Got ' + t + ', so End position is (' + bx + ',' + by + ') at ' + (new Date(endTime)).toLocaleString());
+        things_to_do = [ function() { scrollSlightly(bx, by);} ];
+        return false;
+      }
       document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
     }
 
     gm_registerMenuCommand('Set_bottom',
                            function() {
-                             gm_log('Making box');
+                             gm_log('Setting...');
                              make_box();
+                             pop_queue();
                            },
                            'b', 'control alt');
 
