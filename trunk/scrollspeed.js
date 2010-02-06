@@ -64,27 +64,36 @@ if(window===window.top) {
     }
 
     function make_box() {
-      var d = document.createElement('div');
-      d.innerHTML =
-        '<input type="text"  id="scrspminutes" value="120" size="4" style="text-align:right">' +
-        '<input type="submit" id="scrspbutton" value="42">' +
-        '';
-      document.body.appendChild(d);
-      d.style.position = 'fixed';
-      d.style.right = "0px";
-      d.style.top = "0px";
 
       function setAndScroll() {
-        var t = document.getElementById('scrspminutes').value;
+        //var t = document.getElementById('scrspminutes').value;
+        var t = document.scrspform.minutes.value;
         gm_log('Clicked: ' + t);
         var bx=window.scrollX;
         var by=window.scrollY;
         endTime = 1000*60*t + curTime();
         gm_log("End position is (" + bx + "," + by + ") at " + (new Date(endTime)).toLocaleString());
         things_to_do = [ function() { scrollSlightly(bx, by);} ];
+        return false;
       }
 
-      document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
+      var d = document.createElement('div');
+      d.innerHTML =
+        '<FORM NAME="scrspform" id="scrspformid">' +
+        '<input type="text"  id="scrspminutes" name="minutes" value="120" size="4" style="text-align:right">' +
+        '<input type="submit" id="scrspbutton" name="bbutton" value="42">' +
+        '</form>' +
+        '';
+      document.body.appendChild(d);
+      gm_log('Id already? #' + d.id + '#');
+      d.style.position = 'fixed';
+      d.style.right = "0px";
+      d.style.top = "0px";
+      gm_log('And now? #' + d.id + '#');
+      d.onsubmit = function() { console.log('Submitting'); setAndScroll(); return false; }
+      gm_log('And finally: #' + d.id + '#');
+
+      //document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
     }
 
     gm_registerMenuCommand('Set_bottom',
