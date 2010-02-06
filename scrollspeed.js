@@ -66,8 +66,7 @@ if(window===window.top) {
     function make_box() {
 
       function setAndScroll() {
-        //var t = document.getElementById('scrspminutes').value;
-        var t = document.scrspform.minutes.value;
+        var t = document.getElementById('scrspminutes').value;
         gm_log('Clicked: ' + t);
         var bx=window.scrollX;
         var by=window.scrollY;
@@ -79,21 +78,15 @@ if(window===window.top) {
 
       var d = document.createElement('div');
       d.innerHTML =
-        '<FORM NAME="scrspform" id="scrspformid">' +
         '<input type="text"  id="scrspminutes" name="minutes" value="120" size="4" style="text-align:right">' +
         '<input type="submit" id="scrspbutton" name="bbutton" value="42">' +
-        '</form>' +
         '';
       document.body.appendChild(d);
-      gm_log('Id already? #' + d.id + '#');
       d.style.position = 'fixed';
       d.style.right = "0px";
       d.style.top = "0px";
-      gm_log('And now? #' + d.id + '#');
-      d.onsubmit = function() { console.log('Submitting'); setAndScroll(); return false; }
-      gm_log('And finally: #' + d.id + '#');
 
-      //document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
+      document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
     }
 
     gm_registerMenuCommand('Set_bottom',
