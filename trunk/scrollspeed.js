@@ -76,7 +76,6 @@ if(window===window.top) {
       var y = Math.ceil(ty + (eps/T)*(by-ty) + 0.8); //Attempt to fix the increasing rate
       window.scrollTo(tx,y);
       document.getElementById('scrspbutton').value = '' + ((eps/T)*(by-ty)).toFixed(2);
-      //document.getElementById('scrspminutes').value= printTime(T);
       things_to_do.push(function() { scrollSlightly(bx, by); });
     }
 
@@ -110,14 +109,3 @@ if(window===window.top) {
   })();
 
  }
-
-/*
-Manually, in Firebug:
-
-function curTime() { return (new Date()).getTime(); }
-function scrollSlightly(bx, by) {T = endTime - curTime(); if(T<0) { alert("Done scrolling; you should be done reading!"); return; } var tx = window.scrollX, ty = window.scrollY; var eps = 100; var x = tx + (eps/T)*(bx-tx); var y = ty + (eps/T)*(by-ty); window.scrollTo(x,y); window.setTimeout(scrollSlightly, eps, bx, by);}
-bx = window.scrollX
-by = window.scrollY
-endTime = curTime() + 1000*60*(minutes)
-scrollSlightly(bx,by)
-*/
