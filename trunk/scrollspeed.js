@@ -88,8 +88,8 @@ if(window===window.top) {
       dy  *= factor;
       var y = ty + dy;
       window.scrollTo(tx,y);
-      document.getElementById('scrspbutton').value = '' + dy.toFixed(2);
-      document.getElementById('scrspactual').value = ret;
+      document.getElementById('scrspbutton').value = '' + dy;
+      document.getElementById('scrspinter').value = ret;
       things_to_do.push(function() { return scrollSlightly(bx, by); });
       //gm_log('Returning ' + ret);
       return ret;
@@ -101,7 +101,7 @@ if(window===window.top) {
       d.innerHTML =
         '<input type="text"  id="scrspminutes" name="minutes" value="120" size="4" style="text-align:right">' +
         '<input type="submit" id="scrspbutton" name="bbutton" value="min">' +
-        '<input type="submit" id="scrspactual" value="0.00">' +
+        '<input type="submit" id="scrspinter" value="0">' +
         '<input type="submit" id="scrspendtime" value="">' +
         '';
       document.body.appendChild(d);
