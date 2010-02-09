@@ -2,7 +2,7 @@
 // @name          ScrollSpeed (auto-scroll)
 // @description   Automatically scrolls page to end by a specified time
 // @namespace     http://code.google.com/p/random-code/
-// @version       0.2
+// @version       0.3
 // @include       *
 // ==/UserScript==
 //
@@ -30,20 +30,21 @@
   Good luck reading.
 
   (You can enter another number and click again to change the end time.
-  To make it stop entirely, enter a very large number, e.g. 99999.)
+  To make it stop entirely, reload the page. You can also enter a very
+  large number, e.g. 99999, to make the scrolling very slow.)
 
   Notes
   =====
-  * The scroll rate, instead of remaining constant, tends to increase.
-  This is probably because Firefox can only scroll by discrete amounts.
-  I'm not sure how to fix this. In the meantime, set it to end earlier
-  than you need it to.
+   * Because of rounding errors that accumulate, and other reasons,
+  the scroll rate, instead of remaining constant, tends to increase.
+  So set it to end slightly earlier than you need it to, just in case.
 
-  * Only the vertical (y) position is scrolled. A previous version
+   * Only the vertical (y) position is scrolled. A previous version
   scrolled horizontally (x) as well, but I decided this was useless.
 
   Changelog:
 
+  2010-02-09 v0.3    Use variable intervals between scrolls
   2010-02-06 v0.2    Removed horizontal scroll
   2010-02-06 v0.1    First working version
   2010-01-15 v0.0    First version
@@ -61,22 +62,37 @@ if(window===window.top) {
 
     function curTime() { return (new Date()).getTime(); }
     var endTime;
-    var eps = 100; //Number of milliseconds
+    var eps = 1000; //Number of milliseconds
 
     var things_to_do = [];
     function pop_queue(func) {
-      if(things_to_do.length>0) { things_to_do.shift()(); }
-      window.setTimeout(pop_queue, eps);
+      var wait = eps;
+      if(things_to_do.length>0) { wait = things_to_do.shift()(); }
+      window.setTimeout(pop_queue, wait);
+    }
+
+    function sgn(x) {
+      if(x>0) { return 1; }
+      if(x<0) { return -1; }
+      return 0;
     }
 
     function scrollSlightly(bx, by) {
       var T = endTime - curTime();
       if(T<0) { alert("Done scrolling; you should be done reading!"); return; }
       var tx = window.scrollX, ty = window.scrollY;
-      var y = Math.ceil(ty + (eps/T)*(by-ty) + 0.8); //Attempt to fix the increasing rate
+      var ret = Math.ceil(T*1.0/Math.abs(by-ty));
+      var dy = sgn(by-ty);
+      var factor = Math.ceil(100/ret);
+      ret *= factor;
+      dy  *= factor;
+      var y = ty + dy;
       window.scrollTo(tx,y);
-      document.getElementById('scrspbutton').value = '' + ((eps/T)*(by-ty)).toFixed(2);
-      things_to_do.push(function() { scrollSlightly(bx, by); });
+      document.getElementById('scrspbutton').value = '' + dy.toFixed(2);
+      document.getElementById('scrspactual').value = ret;
+      things_to_do.push(function() { return scrollSlightly(bx, by); });
+      //gm_log('Returning ' + ret);
+      return ret;
     }
 
     function make_box() {
@@ -85,6 +101,8 @@ if(window===window.top) {
       d.innerHTML =
         '<input type="text"  id="scrspminutes" name="minutes" value="120" size="4" style="text-align:right">' +
         '<input type="submit" id="scrspbutton" name="bbutton" value="min">' +
+        '<input type="submit" id="scrspactual" value="0.00">' +
+        '<input type="submit" id="scrspendtime" value="">' +
         '';
       document.body.appendChild(d);
       d.style.position = 'fixed';
@@ -96,11 +114,14 @@ if(window===window.top) {
         var bx=window.scrollX;
         var by=window.scrollY;
         endTime = 1000*60*t + curTime();
+        document.getElementById('scrspendtime').value = (new Date(endTime)).toLocaleTimeString();
         gm_log('Got ' + t + ', so End position is (' + bx + ',' + by + ') at ' + (new Date(endTime)).toLocaleString());
         things_to_do = [ function() { scrollSlightly(bx, by);} ];
+        pop_queue();
         return false;
       }
       document.getElementById('scrspbutton').addEventListener('click', setAndScroll, true);
+      document.getElementById('scrspendtime').addEventListener('click', pop_queue, true);
       pop_queue();
     }
 
