@@ -19,7 +19,7 @@
   Usage
   =====
   Scroll down to the end of the page/region you want to read,
-  and choose "Set_bottom" in the Greasemonkey User Script Commands.
+  and choose "Make_box" in the Greasemonkey User Script Commands.
 
   A text box should appear at the top right corner of the window.
   Enter a number (of minutes) in the box, and click on the button.
@@ -104,7 +104,7 @@ if(window===window.top) {
       pop_queue();
     }
 
-    gm_registerMenuCommand('Set_bottom', make_box, 'b', 'control alt');
+    gm_registerMenuCommand('Make_box', make_box, 'b', 'control alt');
 
   })();
 
