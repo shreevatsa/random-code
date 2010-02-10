@@ -40,12 +40,15 @@
 
   Notes
   =====
-   * Because of rounding errors that accumulate, and other reasons,
-  the scroll rate, instead of remaining constant, tends to increase.
+  * Because of rounding errors that accumulate, and other reasons,
+  the scroll rate, instead of remaining constant, might increase.
   So set it to end slightly earlier than you need it to, just in case.
 
-   * Only the vertical (y) position is scrolled. A previous version
+  * Only the vertical (y) position is scrolled. A previous version
   scrolled horizontally (x) as well, but I decided this was useless.
+
+  * It does not work for files opened from disk. This is a Greasemonkey
+  limitation; it does not run on local files.
 
   Changelog:
 
@@ -87,7 +90,7 @@ if(window===window.top) {
       var tx = window.scrollX, ty = window.scrollY;
       var ret = Math.ceil(T*1.0/Math.abs(by-ty));
       var dy = sgn(by-ty);
-      var factor = Math.ceil(200/ret);
+      var factor = Math.ceil(100/ret);
       ret *= factor;
       dy  *= factor;
       var y = ty + dy;
