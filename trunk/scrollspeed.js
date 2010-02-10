@@ -22,16 +22,21 @@
   and choose "Make_box" in the Greasemonkey User Script Commands.
 
   A text box should appear at the top right corner of the window.
-  Enter a number (of minutes) in the box, and click on the button.
+  Enter a number of minutes in the box, and click on the 'min' button.
 
   Now scroll up. The page will scroll automatically at the proper rate
   (shown in button), to reach the end in the given time.
 
-  Good luck reading.
+  The buttons indicate "scroll by X pixels every Y ms, and end at Z".
 
-  (You can enter another number and click again to change the end time.
+  You can enter another number in the box and click on the first button
+  to change the end time (and also set position).
+
+  If it has stopped scrolling for some reason, you can click on the
+  last button to resume.
+
   To make it stop entirely, reload the page. You can also enter a very
-  large number, e.g. 99999, to make the scrolling very slow.)
+  large number, e.g. 99999, to make the scrolling very slow.
 
   Notes
   =====
@@ -62,11 +67,10 @@ if(window===window.top) {
 
     function curTime() { return (new Date()).getTime(); }
     var endTime;
-    var eps = 1000; //Number of milliseconds
 
     var things_to_do = [];
     function pop_queue(func) {
-      var wait = eps;
+      var wait = 1000; //The default time to wait, in milliseconds
       if(things_to_do.length>0) { wait = things_to_do.shift()(); }
       window.setTimeout(pop_queue, wait);
     }
@@ -83,7 +87,7 @@ if(window===window.top) {
       var tx = window.scrollX, ty = window.scrollY;
       var ret = Math.ceil(T*1.0/Math.abs(by-ty));
       var dy = sgn(by-ty);
-      var factor = Math.ceil(100/ret);
+      var factor = Math.ceil(200/ret);
       ret *= factor;
       dy  *= factor;
       var y = ty + dy;
