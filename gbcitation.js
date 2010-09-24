@@ -187,7 +187,18 @@ if(!this.gbcitation && window === window.top) {
            p!=='sa' &&               //e.g. sa=X
            p!=='oi' &&               //e.g. oi=book_result
            p!=='ct' &&               //e.g. ct=result
-           p!=='resnum') {
+           p!=='oe' &&               //e.g. oe=UTF-8
+           p!=='resnum' &&
+           p!=='as_drrb_is' &&
+           p!=='as_minm_is' &&
+           p!=='as_miny_is' &&
+           p!=='as_maxm_is' &&
+           p!=='as_maxy_is' &&
+           p!=='num' &&
+           p!=='cd' &&
+           p!=='f' &&
+           p!=='lpg' &&
+           p!=='ved') {
           nu += (nu!=='' ? '&' : '')+p+'='+v;
         }
       }
