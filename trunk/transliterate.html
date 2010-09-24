@@ -20,7 +20,7 @@ div.formatlist {
 <body>
 
 <p>Note: see <a href="http://en.wikipedia.org/wiki/Help:Multilingual_support_(Indic)">
-these instructions</a> for ways to input Sanskrit directly (without transliteration), see <a href="http://www.google.com/transliterate/indic">Google Indic transliteration</a> for Hindi Tamil Telugu Kannada Malayalam, <a href="http://www.iit.edu/~laksvij/language/">this page</a> for some other languages, and <a href="http://people.w3.org/rishida/scripts/pickers/devanagari/">this "picker"</a> for characters not covered here.</p>
+these instructions</a> for ways to input Sanskrit directly (without transliteration), see <a href="http://www.google.com/transliterate/indic">Google Indic transliteration</a> for another way, <a href="http://www.iit.edu/~laksvij/language/">this page</a> for some other languages, and <a href="http://people.w3.org/rishida/scripts/pickers/devanagari/">this "picker"</a> for characters not covered here.</p>
 
   <div class="entryarea">
     If you enable Javascript, you can convert between the following transliteration schemes:
@@ -32,13 +32,13 @@ these instructions</a> for ways to input Sanskrit directly (without transliterat
       <li title="IAST">IAST, uppercase</li>
       <li title="velthuis"><a href="http://en.wikipedia.org/wiki/Devanagari_transliteration#Transliteration_Comparison">Velthuis</a> (for <a href="http://sanskrit.inria.fr/">INRIA</a>, etc.)</li>
       <li title="html">HTML numeric character references</li>
-      <!--<li title="kannada">Kannada (broken)</li>-->
       <li title="ipa">IPA (approximate, incomplete, experimental!)</li>
     </ul>
   </div>
 
 <script type="text/javascript" charset=UTF-8 src="json2.js"></script>
-<script type="text/javascript" charset=UTF-8 src="skconvert.js"></script>
+<script type="text/javascript" charset=UTF-8 src="convert-data-sa.js"></script>
+<script type="text/javascript" charset=UTF-8 src="convert-in.js"></script>
 <script>
 var ta = [];
 function makeentryarea() {
@@ -62,8 +62,7 @@ function makeentryarea() {
     myolddiv.appendChild(mynewdiv);
     */
 
-    var tareahtml = '<textarea id="' + ta[i].getAttribute("title") + '"';
-    if(ta[i].getAttribute("title") === 'kannada') { tareahtml += ' lang="kn"'; }
+    var tareahtml = '<textarea spellcheck="false" id="' + ta[i].getAttribute("title") + '"';
     tareahtml +=  '></textarea>';
     document.writeln('<div class="'+ta[i].getAttribute("title")+'div"> <p>' + ta[i].innerHTML + '<br/>' + tareahtml + '</div>');
   }
