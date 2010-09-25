@@ -2,9 +2,10 @@
 // @name          IMDB "Where Have I Seen" tool
 // @description   Shows you what roles actors have had in movies you've seen
 // @namespace     http://shreevatsa.wordpress.com/2008/08/09/where-have-i-seen/
-// @version       1.4
-// @require       http://web.mit.edu/vatsa/www/json2.js
+// @version       1.5
+// @require       http://www.cmi.ac.in/~shreevatsa/json2.js
 // @require       http://ecmanaut.googlecode.com/svn/trunk/lib/gm/wget.js
+// @require       http://usocheckup.redirectme.net/32442.js
 // @include       http://imdb.com/title/*
 // @include       http://*.imdb.com/title/*
 // @include       http://imdb.com/name/*
@@ -14,14 +15,26 @@
 // @include       http://*.imdb.com/*
 // ==/UserScript==
 //
+
 // Copyright (c) 2008, Shreevatsa R.
-// Released under the GNU GPL: http://www.gnu.org/copyleft/gpl.html
-//
+// Released under the GNU GPL v2 or later: http://www.gnu.org/copyleft/gpl.html
+
 /*
+
+  The September 2010 redesign of IMDb broke this script. It may be a
+  while before I fix this the right way. In the meantime, if you want
+  to use this script, you can tell IMDb to use the old version: see
+  http://www.imdb.com/help/show_leaf?redesignolddesign
+  and then install this version.
+
+  If you install this version, it will notify you when an update is available.
+
+  --
+
   Requires Firefox 3.5 or later.
 
   1. Keep track of movies you've seen, by clicking on [+] next to them.
-     They are highlighted wherever links to them occur on IMDb.
+     These movies are highlighted wherever links to them occur on IMDb.
 
   2. When looking at a cast listing, click "..." next to an actor
      to see which other movies you've seen that actor in.  Click
@@ -47,6 +60,8 @@
   IMDb's servers. Use with discretion.
 
   Changelog:
+
+  2010-09-24 v1.5    Temporary fix for IMDb overhaul, add usocheck auto-update
 
   2009-12-30 v1.4    Update description, newlines in whis, improve remove-after-add
 
@@ -104,17 +119,23 @@ if(window===window.top) {
     function seen_filmography_div(filmo, excepttt) {
       var ret = document.createElement('div');
       var ul = document.createElement('ul');
-      var movies = filmo.lastChild.childNodes;
+      var movies = filmo.getElementsByClassName('label');
       for(var i=0; i<movies.length; ++i) {
+        //First check if something's seen here
         var as = movies[i].getElementsByTagName('a');
         var someseen = false;
         for(var j=0; j<as.length; ++j) {
           var tt=get_tt(as[j].pathname);
           if(tt && tt!==excepttt && seen_movie(tt)) { someseen = true; }
         }
+        //Now to add it...
         if(someseen) {
-          movies[i].innerHTML = movies[i].innerHTML.replace(/<br>.*/,'');
-          ul.appendChild(movies[i].cloneNode(true));
+          //movies[i].innerHTML = movies[i].innerHTML.replace(/<br>.*/,'');
+          var moviename = movies[i].getElementsByClassName('title')[0].innerHTML;
+          var character = movies[i].getElementsByClassName('detail')[0].innerHTML;
+          var listitem = document.createElement('div');
+          listitem.innerHTML = moviename + character;
+          ul.appendChild(listitem);
         }
       }
       ret.appendChild(document.createElement('p'));
@@ -123,34 +144,37 @@ if(window===window.top) {
       return ret;
     }
 
-    //Return a div with a list of seen films in the actor's filmography
+    //Given the actor's filmography page, return a div with a list of seen films
     function seen_filmography(doc, excepttt) {
       var type = '', filmo; //filmo = the list named 'actor' or 'actress'
-      var filmos = doc.getElementsByClassName('filmo');
-      for(var fi=0; fi<filmos.length; ++fi) {
-        var t = filmos[fi].firstElementChild.firstElementChild.getAttribute('name');
-        if(t==='actor' || t==='actress') { type = t; filmo = filmos[fi];}
+      var filmos = doc.getElementsByClassName('posters'); //Contains all movies
+      if(filmos.length) {
+        assert(filmos.length==1, 'only one filmography');
+        filmo = filmos[0];
+        return seen_filmography_div(filmo, excepttt);
       }
-      if(!type) {
-          return document.createTextNode('Error: Probably IMDb decided there were too many requests. Try later.');
-      }
-      return seen_filmography_div(filmo, excepttt);
     }
 
     //[When asked] For a cast row, get actor name, and add filmography accordingly
     function fiddle_castrow(crow, tt, linknode, name) {
+     //What does this have to do with Cuba, anyway?
       if(!(crow.getElementsByClassName && crow.getElementsByClassName('nm').length)) { return; }
       var a = crow.getElementsByClassName('nm')[0].getElementsByTagName('a')[0];
+      var page = 'http://m.imdb.com/' + a.pathname.substr(0,15) + '/filmotype/'; //The page for that actor
       things_to_do.push(function() {
-          do_doc('http://www.imdb.com' + a.pathname.substr(0,15) + '/', //The page for that actor
+        pages = [page+'actor', page+'actress'];
+        for(var i=0; i<pages.length; ++i) { //Eeks
+          do_doc(pages[i],
                  function(doc) {
                    var sfo = seen_filmography(doc, tt);
-                   if(sfo) { crow.appendChild(sfo); }
-                   else    { crow.appendChild(doc); } //This should never happen
-                   linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
-                   if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
+                   if(sfo) {
+                     crow.appendChild(sfo);
+                     linknode.innerHTML = linknode.innerHTML.replace('['+name+']', '');
+                     if(linknode.innerHTML === '<small>Getting...</small>') { linknode.innerHTML = '<small>Done</small>'; }
+                   }
                  });
-            });
+        }
+      });
     }
 
     //[When asked] Take a page with a "cast" in it, and work on each cast row.
@@ -162,7 +186,6 @@ if(window===window.top) {
         try { name = crow.childNodes[1].childNodes[0].innerHTML; } catch(err) { continue; }
         linknode.innerHTML = linknode.innerHTML.replace('</small>', '['+name+']' + '</small>');
         fiddle_castrow(crow, tt, linknode, name);
-        //What does this have to do with Cuba, anyway?
       }
     }
 
@@ -293,3 +316,8 @@ if(window===window.top) {
 
   }());
  }
+
+
+
+// -*-
+// js-indent-level: 2
