@@ -60,9 +60,9 @@ if(!this.gbcitation && window === window.top) {
       var metadata_rows = doc.getElementById('metadata_content_table').childNodes[0].childNodes;
       for(var ti=0;ti<metadata_rows.length;++ti) {
         var mrow = metadata_rows[ti].childNodes;
-        assert(mrow.length === 2);
-        assert(mrow[0].className === 'metadata_label');
-        assert(mrow[1].className === 'metadata_value');
+        assert(mrow.length === 2, 'Two in mrow');
+        // assert(mrow[0].className === 'metadata_label', 'expected metadata_label, got ' + mrow[0].className);
+        // assert(mrow[1].className === 'metadata_value', 'expected metadata_value, got ' + mrow[1].className);
         var label = mrow[0].innerHTML;
         if(label.startsWith('Original from') || label.startsWith('Digitized') ||
            label.startsWith('Length') || label.startsWith('Subjects') ||
@@ -175,7 +175,7 @@ if(!this.gbcitation && window === window.top) {
       var q = o.indexOf('?'), prefix = o.substr(0,q+1), u = o.substr(q+1), nu='';
       var parts = u.split('&');
       for(var i=0; i<parts.length; ++i) {
-        var [p, v, e] = parts[i].split('='); assert(typeof e === 'undefined');
+        var [p, v, e] = parts[i].split('='); assert(typeof e === 'undefined', 'e not udefined' + e);
         GM_log(p + ' is ' + v);
         if(p!=='hl' &&               //language of the interface
            p!=='ei' &&               //Some user-specific (cookie-specific?) constant
